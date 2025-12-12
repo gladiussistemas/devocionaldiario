@@ -1,0 +1,190 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2025-12-12T00:00:00.000Z",
+  "__export_source": "insomnia.desktop.app:v12.1.0",
+  "resources": [
+    {
+      "_id": "req_b6e5e8465747469894ea4de3b4c16592",
+      "parentId": "wrk_cce73e2f7ee6497387cb9e9123f02384",
+      "modified": 1765576900639,
+      "created": 1765576681578,
+      "url": "http://localhost:3000/api/devotionals/today",
+      "name": "Get Today's Devotional",
+      "description": "",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "User-Agent",
+          "value": "insomnia/12.1.0",
+          "description": "",
+          "disabled": false
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1765576681578,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_c2c4944d66274332a9731ba08d3587ea",
+      "parentId": "wrk_cce73e2f7ee6497387cb9e9123f02384",
+      "modified": 1765576920979,
+      "created": 1765576724869,
+      "url": "http://localhost:3000/api/devotionals",
+      "name": "Devotionals List",
+      "description": "",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "User-Agent",
+          "value": "insomnia/12.1.0",
+          "description": "",
+          "disabled": false
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1765576724869,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_cf65cdf78ceb4574a955fe2085bffdf5",
+      "parentId": "wrk_cce73e2f7ee6497387cb9e9123f02384",
+      "modified": 1765576944195,
+      "created": 1765576769348,
+      "url": "http://localhost:3000/api/devotionals/random",
+      "name": "Random Devotional",
+      "description": "",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "User-Agent",
+          "value": "insomnia/12.1.0",
+          "description": "",
+          "disabled": false
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1765576769348,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_146219344b094498b4e2d6873e26c960",
+      "parentId": "wrk_cce73e2f7ee6497387cb9e9123f02384",
+      "modified": 1765576984334,
+      "created": 1765576963342,
+      "url": "http://localhost:3000/api/authors",
+      "name": "Authors",
+      "description": "",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "User-Agent",
+          "value": "insomnia/12.1.0",
+          "description": "",
+          "disabled": false
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1765576963342,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_3d37fdc3537e4ad8886277648c25e7e4",
+      "parentId": "wrk_cce73e2f7ee6497387cb9e9123f02384",
+      "modified": 1765577013786,
+      "created": 1765576990882,
+      "url": "http://localhost:3000/api/themes",
+      "name": "Themes",
+      "description": "",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "User-Agent",
+          "value": "insomnia/12.1.0",
+          "description": "",
+          "disabled": false
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1765576990882,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "wrk_cce73e2f7ee6497387cb9e9123f02384",
+      "parentId": null,
+      "modified": 1765577048338,
+      "created": 1765576670347,
+      "name": "Devocional API",
+      "description": "",
+      "scope": "collection",
+      "_type": "workspace"
+    },
+    {
+      "_id": "jar_f2068286aff0cfce4d8f0fcc11268086086ce448",
+      "parentId": "wrk_cce73e2f7ee6497387cb9e9123f02384",
+      "modified": 1765576670365,
+      "created": 1765576670365,
+      "name": "Default Jar",
+      "cookies": [],
+      "_type": "cookie_jar"
+    },
+    {
+      "_id": "env_f2068286aff0cfce4d8f0fcc11268086086ce448",
+      "parentId": "wrk_cce73e2f7ee6497387cb9e9123f02384",
+      "modified": 1765576670356,
+      "created": 1765576670356,
+      "name": "Base Environment",
+      "data": {},
+      "dataPropertyOrder": null,
+      "color": null,
+      "isPrivate": false,
+      "metaSortKey": 1765576670356,
+      "_type": "environment"
+    }
+  ]
+}

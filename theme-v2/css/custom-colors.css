@@ -1,0 +1,129 @@
+/* Não modificar os quadrados pontilhados (.bg) */
+
+/* Texto do header - preto */
+header h1,
+header h3 {
+    color: #000000 !important;
+}
+
+/* Header - mudar borda bege para vermelho */
+header {
+    border-color: #ff0000 !important;
+}
+
+/* Menu navegação - texto preto */
+nav ul li a {
+    color: #000000 !important;
+}
+
+/* Texto Multi-idioma - preto */
+#counter {
+    color: #000000 !important;
+    background: #ff0000 !important;
+}
+
+/* Camadas de sombra atrás do Multi-idioma - vermelho */
+#counter::after,
+#counter::before {
+    background: #ff0000 !important;
+}
+
+/* Seção Sobre - metade vermelho e metade branca */
+#about {
+    background: linear-gradient(180deg, #ff0000 0%, #ff0000 50%, #fafafa 50%, #fafafa 100%) !important;
+}
+
+/* Container da seção Sobre - mudar azul escuro para preto */
+#about > .container {
+    background-color: #000000 !important;
+}
+
+/* Efeito de livro aberto - mudar azul para preto */
+#about > .container::before,
+#about > .container::after {
+    background-color: #000000 !important;
+}
+
+/* Títulos h4 - mudar fundo bege para vermelho */
+h4 {
+    background-color: #ff0000 !important;
+    color: #ffffff !important;
+}
+
+/* Seção Teste agora! - texto preto e botão vermelho */
+.banner h2,
+.banner p {
+    color: #000000 !important;
+}
+
+.btn-primary {
+    background: #a6a6a6 !important;
+    border-color: #a6a6a6 !important;
+    color: #ffffff !important;
+}
+
+.btn-primary:hover {
+    background: #8c8c8c !important;
+    border-color: #8c8c8c !important;
+}
+
+/* Seção Como usar? - mudar parte bege para vermelho */
+#howToUse {
+    background: linear-gradient(180deg, #fafafa 0%, #fafafa 65%, #ff0000 65%, #ff0000 100%) !important;
+}
+
+#howToUse h2,
+#howToUse p {
+    color: #000000 !important;
+}
+
+#button-addon1,
+button[type="submit"] {
+    background: #a6a6a6 !important;
+    border-color: #a6a6a6 !important;
+    color: #ffffff !important;
+}
+
+#button-addon1:hover,
+button[type="submit"]:hover {
+    background: #8c8c8c !important;
+    border-color: #8c8c8c !important;
+}
+
+/* Seção Contribua com o projeto - fundo vermelho e texto preto */
+#donate {
+    background-color: #ff0000 !important;
+}
+
+#donate h2,
+#donate p {
+    color: #000000 !important;
+}
+
+/* Footer - fundo preto e remover efeito ondulado */
+footer {
+    background: #000000 !important;
+}
+
+footer::after {
+    display: none !important;
+}
+
+/* Menu navegação - hover vermelho */
+nav ul li a.text:hover {
+    background-color: #ff0000 !important;
+    color: #ffffff !important;
+}
+
+nav ul li a[class^="icon-"]:hover {
+    color: #ff0000 !important;
+}
+
+/* Ícones de documentação - preto com hover vermelho */
+#documentation-links li a img {
+    filter: brightness(0) !important;
+}
+
+#documentation-links li a:hover img {
+    filter: invert(28%) sepia(93%) saturate(7471%) hue-rotate(356deg) brightness(100%) contrast(114%) !important;
+}

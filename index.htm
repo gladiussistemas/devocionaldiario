@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>API de Devocionais | RESTful API de Devocionais Cristãos</title>
+    <meta name="author" content="Devocional API">
+    <meta name="description" content="API REST com devocionais diários em múltiplos idiomas, autores e temas">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script defer src="theme-v2/js/jquery-1.12.4.min.js"></script>
+    <script defer src="theme-v2/js/jquery.json-viewer.js"></script>
+
+    <link rel="stylesheet" href="theme-v2/css/jquery.json-viewer.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&family=Playfair+Display:wght@700&display=swap">
+    <link rel="stylesheet" href="theme-v2/css/normalize.css">
+    <link rel="stylesheet" href="theme-v2/css/style.css">
+    <link rel="stylesheet" href="theme-v2/css/custom-colors.css">
+</head>
+<body>
+    <!-- Fixed Navigation -->
+    <nav>
+        <div class="container">
+            <a href="index.htm">
+                <img src="theme-v2/images/logo-devocional-symbol.svg" alt="API de Devocionais" style="height: 40px;">
+            </a>
+            <button class="icon-menu menu-toggle"></button>
+            <ul>
+                <li><button class="icon-close menu-toggle"></button></li>
+                <li><a class="text section-scroll" href="#about" title="Conheça nosso manifesto">Manifesto</a></li>
+                <li><a class="text section-scroll" href="#howToUse" title="Aprenda a usar">Como usar?</a></li>
+                <li><a class="text" href="https://github.com/seu-usuario/devocional" target="_blank" title="Documentação">Documentação</a></li>
+                <li><a class="text section-scroll" href="#donate" title="Contribua financeiramente">Doe</a></li>
+                <li><a class="icon-github" href="https://github.com/seu-usuario/devocional" target="_blank" title="Acessar projeto no Github"></a></li>
+                <li><a class="icon-twitter" href="https://twitter.com/seu-usuario" target="_blank" title="Entre em contato"></a></li>
+                <li><a class="icon-whatsapp" href="https://chat.whatsapp.com/seu-link" target="_blank" title="Participe da comunidade"></a></li>
+                <li><a href="en.html" title="Switch to English"><img src="theme-v2/images/en.svg" alt="Switch to English"></a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <header>
+        <a href="index.htm">
+            <img src="theme-v2/images/logo-devocional-horizontal.svg" alt="API de Devocionais" style="max-height: 150px; width: auto; transform: scale(2.8); transform-origin: center;">
+        </a>
+        <div class="container">
+            <div id="hero">
+                <div class="row">
+                    <div class="col">
+                        <h1>Agora você de onde pegar devocionais diários e oferecê-los para seu público</h1>
+                        <h3>API RESTful de Devocionais Cristãos multi-idiomas.</h3>
+                        <div class="bg"></div>
+                    </div>
+                    <div class="col">
+                        <div id="counter">
+                            Multi-idioma
+                            <small>PT e EN</small>
+                            <div class="bg"></div>
+                            <div class="bg"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- About Section -->
+    <section id="about">
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <h2>Sobre o Projeto</h2>
+                    <h5>Nossa missão</h5>
+                    <p>O desenvolvimento e a manutenção de um serviço de devocional diário de qualidade ainda é um processo complexo para igrejas e organizações religiosas.</p>
+                    <p>Sabemos que a criação de conteúdo devocional exclusivo e consistente acaba competindo com tarefas básicas como disponibilizar versículos, sermões, comentários, nutrição de redes sociais e tantas outras tarefas do dia a dia.</p>
+                    <p>Acreditamos que podemos oferecer muitos desses serviços, focados no devocional diário, gratuitamente, com qualidade profissional e centrado na Palavra de Deus.</p>
+                </div>
+                <div class="col">
+                    <h4>Multi-idioma</h4>
+                    <p>Suporte a Português e Inglês, com traduções completas de todos os devocionais, autores e temas.</p>
+
+                    <h4>Documentação</h4>
+                    <p>API RESTful com documentação clara e endpoints intuitivos para fácil integração.</p>
+
+                    <h4>Painel Admin</h4>
+                    <p>Interface moderna para gerenciar devocionais, autores e temas com editor de texto rico.</p>
+
+                    <h4>Referências Bíblicas</h4>
+                    <p>Cada devocional pode conter múltiplas referências bíblicas estruturadas.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Banner CTA -->
+    <section>
+        <div class="container">
+            <div class="banner" style="background: white; box-shadow: 0 10px 40px rgba(0,0,0,0.1); border-radius: 12px; padding: 50px 60px;">
+                <div class="row">
+                    <div class="col">
+                        <h2>Teste agora!</h2>
+                        <p>Experimente nossa API abaixo e veja como é simples obter devocionais para seu aplicativo ou site.</p>
+                    </div>
+                    <div class="col">
+                        <a class="btn-primary" href="https://github.com/seu-usuario/devocional" target="_blank" title="Ver documentação no GitHub">DOCUMENTAÇÃO</a>
+                        <ul id="documentation-links">
+                            <li><a class="doc-icon icon-svg" href="https://insomnia.rest/run/?label=Devocional%20API&uri=https://raw.githubusercontent.com/seu-usuario/devocional/master/docs/insomnia.json" target="_blank" title="Abrir documentação da API no Insomnia"><img src="theme-v2/images/ic-insomnia.svg" alt="Abrir documentação da API no Insomnia"></a></li>
+                            <li><a class="doc-icon icon-svg" href="https://www.postman.com/" target="_blank" title="Abrir documentação da API no Postman"><img src="theme-v2/images/ic-postman.svg" alt="Abrir documentação da API no Postman"></a></li>
+                            <li><a class="doc-icon icon-svg" href="https://editor.swagger.io/" target="_blank" title="Abrir documentação da API no Swagger"><img src="theme-v2/images/ic-swagger.svg" alt="Abrir documentação da API no Swagger"></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How To Use -->
+    <section id="howToUse">
+        <div class="container">
+            <h2>Como usar?</h2>
+            <p class="font-p mg-bt-30">
+                Exemplos:
+                <strong>devotionals/today</strong>,
+                <strong>devotionals/{slug}</strong>,
+                <strong>authors</strong>,
+                <strong>themes</strong>,
+                <strong>devotionals/random</strong>
+            </p>
+            <form id="form-1" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <label id="basic-addon3" for="path" style="margin: 0;">http://localhost:3000/api/</label>
+                <input
+                    id="path"
+                    type="text"
+                    aria-describedby="basic-addon3"
+                    value="devotionals/today"
+                    placeholder="devotionals/today"
+                    style="flex: 1; min-width: 200px;">
+                <button id="button-addon1" type="submit" title="Buscar" style="white-space: nowrap;">Buscar</button>
+            </form>
+            <pre id="output"></pre>
+        </div>
+    </section>
+
+    <!-- Donate -->
+    <section id="donate">
+        <div class="container">
+            <h2>Contribua com o projeto!</h2>
+            <p class="font-p mg-bt-30">A partir de doações pontuais ou mensais é possível contribuir com o projeto, priorizar novas tarefas e acelerar novas funcionalidades.</p>
+            <a href="https://www.patreon.com/seu-usuario" target="_blank"><img src="https://cdn-std.dprcdn.net/files/acc_649651/plrSCT" style="height: 80px;" alt="Patreon"></a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <p>Copyright © 2025 API de Devocionais. Todos os direitos reservados.</p>
+                </div>
+                <div class="col">
+                    <a class="btn-small" href="http://localhost:3000/health" target="_blank" title="Status da API">Status da API</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Main js -->
+    <script defer src="theme-v2/js/main.js"></script>
+    <script defer src="assets/scripts/app.js"></script>
+</body>
+</html>
