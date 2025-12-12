@@ -1,0 +1,117 @@
+{
+  "info": {
+    "_postman_id": "devocional-api-collection",
+    "name": "Devocional API",
+    "description": "API RESTful de Devocionais Cristãos multi-idiomas",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get Today's Devotional",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/devotionals/today",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "devotionals",
+            "today"
+          ]
+        },
+        "description": "Retorna o devocional do dia atual"
+      },
+      "response": []
+    },
+    {
+      "name": "Devotionals List",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/devotionals",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "devotionals"
+          ]
+        },
+        "description": "Lista todos os devocionais disponíveis"
+      },
+      "response": []
+    },
+    {
+      "name": "Random Devotional",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/devotionals/random",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "devotionals",
+            "random"
+          ]
+        },
+        "description": "Retorna um devocional aleatório"
+      },
+      "response": []
+    },
+    {
+      "name": "Authors",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/authors",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "authors"
+          ]
+        },
+        "description": "Lista todos os autores disponíveis"
+      },
+      "response": []
+    },
+    {
+      "name": "Themes",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/themes",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "themes"
+          ]
+        },
+        "description": "Lista todos os temas disponíveis"
+      },
+      "response": []
+    }
+  ]
+}
