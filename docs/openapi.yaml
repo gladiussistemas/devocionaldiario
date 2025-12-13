@@ -1,0 +1,430 @@
+openapi: 3.0.0
+info:
+  title: Devocional API
+  description: |
+    API RESTful de Devocionais Cristãos multi-idiomas.
+
+    Acesse devocionais diários, autores, temas e referências bíblicas em múltiplos idiomas através de uma API simples e poderosa.
+  version: 1.0.0
+  contact:
+    name: Gladius Sistemas
+    url: https://github.com/gladiussistemas/devocionaldiario
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3000/api
+    description: Servidor local de desenvolvimento
+  - url: https://api.devocional.com/api
+    description: Servidor de produção (a ser configurado)
+
+tags:
+  - name: Devotionals
+    description: Endpoints relacionados aos devocionais diários
+  - name: Authors
+    description: Endpoints relacionados aos autores
+  - name: Themes
+    description: Endpoints relacionados aos temas/categorias
+
+paths:
+  /devotionals/today:
+    get:
+      tags:
+        - Devotionals
+      summary: Obter devocional do dia
+      description: Retorna o devocional correspondente à data atual
+      parameters:
+        - name: language
+          in: query
+          description: Idioma do conteúdo (pt ou en)
+          required: false
+          schema:
+            type: string
+            enum: [pt, en]
+            default: pt
+      responses:
+        '200':
+          description: Devocional do dia retornado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Devotional'
+        '404':
+          description: Nenhum devocional encontrado para hoje
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /devotionals:
+    get:
+      tags:
+        - Devotionals
+      summary: Listar todos os devocionais
+      description: Retorna uma lista paginada de todos os devocionais disponíveis
+      parameters:
+        - name: language
+          in: query
+          description: Idioma do conteúdo
+          required: false
+          schema:
+            type: string
+            enum: [pt, en]
+            default: pt
+        - name: page
+          in: query
+          description: Número da página
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          description: Quantidade de itens por página
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: author
+          in: query
+          description: Filtrar por slug do autor
+          required: false
+          schema:
+            type: string
+        - name: theme
+          in: query
+          description: Filtrar por slug do tema
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lista de devocionais retornada com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  devotionals:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Devotional'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+
+  /devotionals/{slug}:
+    get:
+      tags:
+        - Devotionals
+      summary: Obter devocional por slug
+      description: Retorna um devocional específico baseado no slug
+      parameters:
+        - name: slug
+          in: path
+          description: Slug único do devocional
+          required: true
+          schema:
+            type: string
+        - name: language
+          in: query
+          description: Idioma do conteúdo
+          required: false
+          schema:
+            type: string
+            enum: [pt, en]
+            default: pt
+      responses:
+        '200':
+          description: Devocional retornado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Devotional'
+        '404':
+          description: Devocional não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /devotionals/random:
+    get:
+      tags:
+        - Devotionals
+      summary: Obter devocional aleatório
+      description: Retorna um devocional aleatório do banco de dados
+      parameters:
+        - name: language
+          in: query
+          description: Idioma do conteúdo
+          required: false
+          schema:
+            type: string
+            enum: [pt, en]
+            default: pt
+        - name: theme
+          in: query
+          description: Filtrar por slug do tema
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Devocional aleatório retornado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Devotional'
+        '404':
+          description: Nenhum devocional encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /authors:
+    get:
+      tags:
+        - Authors
+      summary: Listar todos os autores
+      description: Retorna uma lista de todos os autores disponíveis
+      parameters:
+        - name: language
+          in: query
+          description: Idioma do conteúdo
+          required: false
+          schema:
+            type: string
+            enum: [pt, en]
+            default: pt
+      responses:
+        '200':
+          description: Lista de autores retornada com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  authors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Author'
+
+  /authors/{slug}:
+    get:
+      tags:
+        - Authors
+      summary: Obter autor por slug
+      description: Retorna um autor específico baseado no slug
+      parameters:
+        - name: slug
+          in: path
+          description: Slug único do autor
+          required: true
+          schema:
+            type: string
+        - name: language
+          in: query
+          description: Idioma do conteúdo
+          required: false
+          schema:
+            type: string
+            enum: [pt, en]
+            default: pt
+      responses:
+        '200':
+          description: Autor retornado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Author'
+        '404':
+          description: Autor não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /themes:
+    get:
+      tags:
+        - Themes
+      summary: Listar todos os temas
+      description: Retorna uma lista de todos os temas/categorias disponíveis
+      parameters:
+        - name: language
+          in: query
+          description: Idioma do conteúdo
+          required: false
+          schema:
+            type: string
+            enum: [pt, en]
+            default: pt
+      responses:
+        '200':
+          description: Lista de temas retornada com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  themes:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Theme'
+
+  /themes/{slug}:
+    get:
+      tags:
+        - Themes
+      summary: Obter tema por slug
+      description: Retorna um tema específico baseado no slug
+      parameters:
+        - name: slug
+          in: path
+          description: Slug único do tema
+          required: true
+          schema:
+            type: string
+        - name: language
+          in: query
+          description: Idioma do conteúdo
+          required: false
+          schema:
+            type: string
+            enum: [pt, en]
+            default: pt
+      responses:
+        '200':
+          description: Tema retornado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Theme'
+        '404':
+          description: Tema não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    Devotional:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        slug:
+          type: string
+          example: "confianca-em-deus"
+        title:
+          type: string
+          example: "Confiança em Deus"
+        content:
+          type: string
+          example: "Texto completo do devocional..."
+        prayer:
+          type: string
+          example: "Senhor, ajuda-me a confiar em Ti..."
+        publication_date:
+          type: string
+          format: date
+          example: "2025-12-12"
+        author:
+          $ref: '#/components/schemas/Author'
+        theme:
+          $ref: '#/components/schemas/Theme'
+        biblical_references:
+          type: array
+          items:
+            $ref: '#/components/schemas/BiblicalReference'
+
+    Author:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        slug:
+          type: string
+          example: "charles-spurgeon"
+        name:
+          type: string
+          example: "Charles Spurgeon"
+        bio:
+          type: string
+          example: "Pastor e escritor britânico do século XIX..."
+
+    Theme:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        slug:
+          type: string
+          example: "fe"
+        name:
+          type: string
+          example: "Fé"
+        description:
+          type: string
+          example: "Devocionais sobre fé e confiança em Deus"
+
+    BiblicalReference:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        book:
+          type: string
+          example: "psalms"
+        chapter:
+          type: integer
+          example: 23
+        verse_start:
+          type: integer
+          example: 1
+        verse_end:
+          type: integer
+          nullable: true
+          example: null
+        reference_text:
+          type: string
+          example: "Salmos 23:1"
+
+    Pagination:
+      type: object
+      properties:
+        total:
+          type: integer
+          example: 100
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 10
+        pages:
+          type: integer
+          example: 10
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: "NOT_FOUND"
+            message:
+              type: string
+              example: "Recurso não encontrado"
+            status:
+              type: integer
+              example: 404
