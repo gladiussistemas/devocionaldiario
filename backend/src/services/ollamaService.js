@@ -316,6 +316,13 @@ Se o usuário apenas cumprimentar, responda:
         .join('\n\n');
 
       const lastUserMessage = messages[messages.length - 1].content;
+      const lowerMessage = lastUserMessage.toLowerCase();
+
+      // Detectar se usuário quer criar um devocional
+      const wantsToCreate = lowerMessage.match(/crie|criar|faça|fazer|gerar|gostaria|quero/i) &&
+                           (lowerMessage.match(/devocional/i) || lowerMessage.match(/fé|amor|esperança|paz|força|oração/i));
+
+      console.log(`🔍 Usuário quer criar devocional: ${wantsToCreate}`);
 
       const fullPrompt = `${systemPrompt}
 
@@ -325,7 +332,7 @@ ${conversationHistory}
 NOVA MENSAGEM DO USUÁRIO:
 ${lastUserMessage}
 
-Sua resposta (execute ferramentas se necessário e depois responda):`;
+Sua resposta${wantsToCreate ? ' (o usuário está pedindo para criar um devocional)' : ''}:`;
 
       // Fazer requisição ao Ollama com formato JSON
       console.log('📤 Enviando requisição ao Ollama...');
@@ -357,9 +364,68 @@ Sua resposta (execute ferramentas se necessário e depois responda):`;
         };
       }
 
-      // Processar ações se houver
+      // Se detectamos que quer criar devocional, forçar a ação
       const functionCalls = [];
-      if (parsedResponse.actions && Array.isArray(parsedResponse.actions)) {
+
+      if (wantsToCreate) {
+        console.log('🎯 Criando devocional automaticamente...');
+
+        // Extrair tema da mensagem
+        let theme = 'fé';
+        if (lowerMessage.includes('amor')) theme = 'amor';
+        else if (lowerMessage.includes('esperança')) theme = 'esperança';
+        else if (lowerMessage.includes('paz')) theme = 'paz';
+        else if (lowerMessage.includes('força')) theme = 'força';
+
+        console.log(`📌 Tema detectado: ${theme}`);
+
+        // Verificar se o modelo já incluiu a ação no JSON
+        const hasCreateAction = parsedResponse.actions?.some(a => a.tool === 'createDevotional');
+
+        if (!hasCreateAction && parsedResponse.actions?.length > 0) {
+          // Se tem outras ações mas não createDevotional, executar as ações do modelo
+          for (const action of parsedResponse.actions) {
+            const { tool, args } = action;
+            console.log(`⚙️ Executando função: ${tool}`);
+            const functionResponse = await this.executeFunction(tool, args);
+            functionCalls.push({ name: tool, response: functionResponse });
+          }
+        } else if (hasCreateAction) {
+          // Se o modelo já incluiu createDevotional, executar normalmente
+          for (const action of parsedResponse.actions) {
+            const { tool, args } = action;
+            console.log(`⚙️ Executando função: ${tool}`);
+            console.log(`📋 Argumentos:`, JSON.stringify(args, null, 2));
+            const functionResponse = await this.executeFunction(tool, args);
+            console.log(`✅ Resposta da função:`, JSON.stringify(functionResponse, null, 2));
+            functionCalls.push({ name: tool, response: functionResponse });
+          }
+        } else {
+          // Se o modelo não incluiu createDevotional, forçar a criação com conteúdo do modelo
+          const devotionalArgs = {
+            title_pt: parsedResponse.title_pt || `A ${theme.charAt(0).toUpperCase() + theme.slice(1)} em Deus`,
+            title_en: parsedResponse.title_en || `${theme.charAt(0).toUpperCase() + theme.slice(1)} in God`,
+            teaching_content_pt: parsedResponse.teaching_content_pt || parsedResponse.content_pt || `Um devocional sobre ${theme}.`,
+            teaching_content_en: parsedResponse.teaching_content_en || parsedResponse.content_en || `A devotional about ${theme}.`,
+            reflection_questions_pt: parsedResponse.reflection_questions_pt || [`Como ${theme} tem sido manifestada em sua vida?`],
+            reflection_questions_en: parsedResponse.reflection_questions_en || [`How has ${theme} been manifested in your life?`],
+            closing_prayer_pt: parsedResponse.closing_prayer_pt || `Senhor, fortaleça minha ${theme}.`,
+            closing_prayer_en: parsedResponse.closing_prayer_en || `Lord, strengthen my ${theme}.`,
+          };
+
+          console.log(`⚙️ Executando função: createDevotional`);
+          console.log(`📋 Argumentos:`, JSON.stringify(devotionalArgs, null, 2));
+
+          const functionResponse = await this.executeFunction('createDevotional', devotionalArgs);
+          console.log(`✅ Resposta da função:`, JSON.stringify(functionResponse, null, 2));
+
+          functionCalls.push({
+            name: 'createDevotional',
+            response: functionResponse,
+          });
+        }
+      } else if (parsedResponse.actions && Array.isArray(parsedResponse.actions) && parsedResponse.actions.length > 0) {
+        // Usuário não quer criar devocional, mas o modelo retornou ações
         console.log(`🔧 Encontradas ${parsedResponse.actions.length} ações para executar`);
 
         for (const action of parsedResponse.actions) {
@@ -377,10 +443,17 @@ Sua resposta (execute ferramentas se necessário e depois responda):`;
         }
       }
 
+      // Ajustar mensagem se criou devocional
+      let finalMessage = parsedResponse.message || 'Tarefa concluída!';
+      if (functionCalls.some(fc => fc.name === 'createDevotional' && fc.response.success)) {
+        const devotionalTitle = functionCalls.find(fc => fc.name === 'createDevotional')?.response?.message || '';
+        finalMessage = `✓ Devocional criado com sucesso! ${devotionalTitle} Você pode visualizá-lo no painel de Devocionais.`;
+      }
+
       // Retornar a mensagem com as funções executadas
       return {
         role: 'assistant',
-        content: parsedResponse.message || 'Tarefa concluída!',
+        content: finalMessage,
         functionCalls: functionCalls.length > 0 ? functionCalls : undefined,
       };
     } catch (error) {
