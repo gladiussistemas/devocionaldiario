@@ -9,6 +9,9 @@ const config = require('./config/environment');
 // Create Express app
 const app = express();
 
+// Trust proxy (required when behind nginx)
+app.set('trust proxy', true);
+
 // Security middleware
 app.use(helmet());
 
