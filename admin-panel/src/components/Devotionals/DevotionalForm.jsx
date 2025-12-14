@@ -13,7 +13,7 @@ import {
   CircularProgress,
   Divider,
 } from '@mui/material';
-import { Save as SaveIcon, ArrowBack as BackIcon, Translate as TranslateIcon } from '@mui/icons-material';
+import { Save as SaveIcon, ArrowBack as BackIcon, Translate as TranslateIcon, Edit as EditIcon } from '@mui/icons-material';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import devotionalService from '../../services/devotionalService';
@@ -47,7 +47,7 @@ const initialFormData = {
   biblical_references: [],
 };
 
-export default function DevotionalForm() {
+export default function DevotionalForm({ readOnly = false }) {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEditing = Boolean(id);
@@ -278,12 +278,29 @@ export default function DevotionalForm() {
     <Box>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <Typography variant="h5" component="h1">
-          {isEditing ? 'Editar Devocional' : 'Novo Devocional'}
+          {readOnly ? 'Visualizar Devocional' : isEditing ? 'Editar Devocional' : 'Novo Devocional'}
         </Typography>
-        <Button startIcon={<BackIcon />} onClick={() => navigate('/devotionals')}>
-          Voltar
-        </Button>
+        <Box display="flex" gap={2}>
+          {readOnly && isEditing && (
+            <Button
+              variant="contained"
+              startIcon={<EditIcon />}
+              onClick={() => navigate(`/devotionals/edit/${id}`)}
+            >
+              Editar
+            </Button>
+          )}
+          <Button startIcon={<BackIcon />} onClick={() => navigate('/devotionals')}>
+            Voltar
+          </Button>
+        </Box>
       </Box>
+
+      {readOnly && (
+        <Alert severity="info" sx={{ mb: 2 }}>
+          Você está visualizando este devocional. Clique em "Editar" para fazer alterações.
+        </Alert>
+      )}
 
       {error && (
         <Alert severity="error" onClose={() => setError(null)} sx={{ mb: 2 }}>
@@ -305,6 +322,7 @@ export default function DevotionalForm() {
             onChange={(e) => handleChange('slug', e.target.value)}
             fullWidth
             required
+            disabled={readOnly}
             helperText="URL amigável (ex: confianca-em-deus)"
           />
           <TextField
@@ -314,6 +332,7 @@ export default function DevotionalForm() {
             onChange={(e) => handleChange('publish_date', e.target.value)}
             fullWidth
             required
+            disabled={readOnly}
             InputLabelProps={{ shrink: true }}
           />
         </Box>
@@ -324,6 +343,7 @@ export default function DevotionalForm() {
             type="number"
             value={formData.day_number}
             onChange={(e) => handleChange('day_number', e.target.value)}
+            disabled={readOnly}
             helperText="Número do dia no plano/tema (ex: Dia 1 de 30)"
           />
           <TextField
@@ -458,23 +478,25 @@ export default function DevotionalForm() {
           onChange={(refs) => handleChange('biblical_references', refs)}
         />
 
-        <Box display="flex" gap={2} justifyContent="flex-end" mt={4}>
-          <Button
-            variant="outlined"
-            onClick={() => handleSubmit(false)}
-            disabled={loading}
-          >
-            Salvar Rascunho
-          </Button>
-          <Button
-            variant="contained"
-            startIcon={<SaveIcon />}
-            onClick={() => handleSubmit(true)}
-            disabled={loading}
-          >
-            {loading ? <CircularProgress size={24} /> : 'Publicar'}
-          </Button>
-        </Box>
+        {!readOnly && (
+          <Box display="flex" gap={2} justifyContent="flex-end" mt={4}>
+            <Button
+              variant="outlined"
+              onClick={() => handleSubmit(false)}
+              disabled={loading}
+            >
+              Salvar Rascunho
+            </Button>
+            <Button
+              variant="contained"
+              startIcon={<SaveIcon />}
+              onClick={() => handleSubmit(true)}
+              disabled={loading}
+            >
+              {loading ? <CircularProgress size={24} /> : 'Publicar'}
+            </Button>
+          </Box>
+        )}
       </Paper>
     </Box>
   );
