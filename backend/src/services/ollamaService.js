@@ -245,6 +245,10 @@ class OllamaService {
   // Método principal de chat
   async chat(messages, userId) {
     try {
+      console.log('🤖 Devon IA: Iniciando chat com Ollama');
+      console.log(`📍 Ollama URL: ${this.ollama.config.host}`);
+      console.log(`🎯 Modelo: ${this.model}`);
+
       const systemPrompt = `Você é o Devon IA, um assistente especializado em criar devocionais.
 
 REGRAS IMPORTANTES:
@@ -292,11 +296,17 @@ ${lastUserMessage}
 Sua resposta (execute ferramentas se necessário e depois responda):`;
 
       // Fazer requisição ao Ollama
+      console.log('📤 Enviando requisição ao Ollama...');
       const response = await this.ollama.generate({
         model: this.model,
         prompt: fullPrompt,
         stream: false,
+        options: {
+          temperature: 0.7,
+          num_predict: 2000,
+        },
       });
+      console.log('✅ Resposta recebida do Ollama');
 
       let responseText = response.response;
 
@@ -358,8 +368,15 @@ Agora responda ao usuário explicando o que você fez. Seja direto e claro:`;
         content: responseText.trim() || 'Desculpe, não consegui processar sua mensagem.',
       };
     } catch (error) {
-      console.error('Ollama chat error:', error);
-      throw error;
+      console.error('❌ Ollama chat error:', error);
+      console.error('Error details:', {
+        message: error.message,
+        code: error.code,
+        stack: error.stack?.split('\n').slice(0, 3).join('\n'),
+      });
+
+      // Retornar erro mais amigável
+      throw new Error(`Falha ao comunicar com Ollama: ${error.message}`);
     }
   }
 }
