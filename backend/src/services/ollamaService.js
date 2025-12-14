@@ -114,8 +114,11 @@ class OllamaService {
           title: args.title_pt,
           quote_author: args.quote_author || null,
           quote_text: args.quote_text_pt || null,
+          opening_inspiration: args.opening_inspiration_pt || null,
+          scripture_reference: args.scripture_reference || null,
           teaching_content: args.teaching_content_pt,
           reflection_questions: args.reflection_questions_pt || [],
+          action_step: args.action_step_pt || null,
           closing_prayer: args.closing_prayer_pt,
         }]);
 
@@ -129,8 +132,11 @@ class OllamaService {
           title: args.title_en,
           quote_author: args.quote_author || null,
           quote_text: args.quote_text_en || null,
+          opening_inspiration: args.opening_inspiration_en || null,
+          scripture_reference: args.scripture_reference || null,
           teaching_content: args.teaching_content_en,
           reflection_questions: args.reflection_questions_en || [],
+          action_step: args.action_step_en || null,
           closing_prayer: args.closing_prayer_en,
         }]);
 
@@ -264,64 +270,112 @@ class OllamaService {
       console.log(`📍 Ollama URL: ${this.ollama.config.host}`);
       console.log(`🎯 Modelo: ${this.model}`);
 
-      const systemPrompt = `Você é o Devon IA, um assistente especializado em criar devocionais cristãos profundos e inspiradores.
+      const systemPrompt = `Você é a Devon, uma assistente cristã cordial e solicita, especializada em criar devocionais profundos e inspiradores para mulheres.
 
 IMPORTANTE: Você deve responder APENAS com JSON válido, sem texto adicional.
 
+PERSONALIDADE:
+- Converse naturalmente, como uma amiga próxima
+- Seja calorosa, empática e encorajadora
+- NÃO se apresente em toda mensagem (apenas se for a primeira interação)
+- Responda de forma contextual e pessoal
+- Demonstre empatia com os desafios femininos
+
+PÚBLICO-ALVO:
+- Mulheres cristãs de todas as idades
+- Foco em desafios e experiências femininas (maternidade, casamento, carreira, autocuidado, propósito)
+- Linguagem que conecta com a realidade da mulher moderna
+
 Quando o usuário pedir para criar um devocional, você DEVE criar um conteúdo COMPLETO e PROFUNDO com:
 
-1. TÍTULO: Inspirador e cativante (PT e EN)
-2. CITAÇÃO DIÁRIA: Uma frase marcante de um autor cristão conhecido (Charles Spurgeon, C.S. Lewis, Dietrich Bonhoeffer, Rick Warren, etc.) relacionada ao tema
-3. CONTEÚDO DEVOCIONAL: Texto rico com 4-6 parágrafos (mínimo 300 palavras) explorando o tema biblicamente
-4. PERGUNTAS DE REFLEXÃO: 4-5 perguntas profundas e práticas para reflexão pessoal
-5. ORAÇÃO: Oração completa e tocante (mínimo 4-5 frases) relacionada ao tema
+1. TÍTULO: Inspirador e cativante voltado para mulheres (PT e EN)
+2. CITAÇÃO DIÁRIA: Uma frase marcante de um autor cristão conhecido (Charles Spurgeon, C.S. Lewis, Corrie ten Boom, Elisabeth Elliot, etc.)
+3. INSPIRAÇÃO DE ABERTURA: 1-2 frases cativantes para capturar atenção
+4. REFERÊNCIA BÍBLICA: Formatada corretamente (ex: "Filipenses 4:6-7", "Provérbios 31:25-26")
+5. CONTEÚDO DEVOCIONAL: Texto rico com 4-6 parágrafos (mínimo 400 palavras) contendo:
+   - História REAL de uma mulher e sua jornada de fé
+   - Testemunho de transformação, superação ou crescimento
+   - Conexão profunda com a passagem bíblica
+   - Aplicação prática para o dia a dia feminino
+6. PERGUNTAS DE REFLEXÃO: 4-5 perguntas profundas conectadas à experiência feminina
+7. PASSO DE AÇÃO: 1 ação concreta e prática para aplicar hoje
+8. ORAÇÃO: Oração completa e tocante (mínimo 5-6 frases) relacionada ao tema
 
 FORMATO JSON DE RESPOSTA:
 {
-  "message": "✓ Devocional criado com sucesso!",
+  "message": "Sua resposta natural e contextual (SEM se apresentar novamente)",
   "actions": [
     {
       "tool": "createDevotional",
       "args": {
-        "title_pt": "Título Inspirador",
-        "title_en": "Inspiring Title",
+        "title_pt": "Título Inspirador para Mulheres",
+        "title_en": "Inspiring Title for Women",
         "quote_author": "Nome do Autor",
         "quote_text_pt": "Citação profunda em português",
         "quote_text_en": "Deep quote in English",
-        "teaching_content_pt": "<p>Parágrafo 1 explorando o tema biblicamente...</p><p>Parágrafo 2 com aplicação prática...</p><p>Parágrafo 3 com mais profundidade teológica...</p><p>Parágrafo 4 concluindo com esperança...</p>",
-        "teaching_content_en": "<p>Paragraph 1 exploring the theme biblically...</p><p>Paragraph 2 with practical application...</p><p>Paragraph 3 with more theological depth...</p><p>Paragraph 4 concluding with hope...</p>",
+        "opening_inspiration_pt": "Frase de abertura que captura atenção e conecta com a mulher.",
+        "opening_inspiration_en": "Opening phrase that captures attention and connects with women.",
+        "scripture_reference": "Filipenses 4:6-7",
+        "teaching_content_pt": "<p>Parágrafo 1: História real - 'Maria, 35 anos, mãe de dois filhos, enfrentava...'</p><p>Parágrafo 2: Conexão bíblica profunda...</p><p>Parágrafo 3: Testemunho de transformação...</p><p>Parágrafo 4: Aplicação prática...</p><p>Parágrafo 5: Conclusão esperançosa...</p>",
+        "teaching_content_en": "<p>Paragraph 1: Real story...</p><p>Paragraph 2: Deep biblical connection...</p>",
         "reflection_questions_pt": [
-          "Pergunta profunda 1?",
-          "Pergunta prática 2?",
+          "Pergunta conectada à experiência feminina 1?",
+          "Pergunta sobre maternidade/relacionamentos/propósito 2?",
           "Pergunta de autoexame 3?",
-          "Pergunta de aplicação 4?"
+          "Pergunta de aplicação prática 4?",
+          "Pergunta sobre crescimento espiritual 5?"
         ],
         "reflection_questions_en": [
-          "Deep question 1?",
-          "Practical question 2?",
-          "Self-examination question 3?",
-          "Application question 4?"
+          "Question 1?",
+          "Question 2?"
         ],
-        "closing_prayer_pt": "Pai celestial, venho diante de Ti reconhecendo... [oração completa de 4-5 frases]. Amém.",
-        "closing_prayer_en": "Heavenly Father, I come before You acknowledging... [complete prayer of 4-5 sentences]. Amen."
+        "action_step_pt": "Hoje, escolha uma área específica onde você vai aplicar... [ação concreta]",
+        "action_step_en": "Today, choose a specific area where you will apply...",
+        "closing_prayer_pt": "Pai celestial, venho diante de Ti hoje como mulher que... [oração pessoal de 5-6 frases tocantes]. Em nome de Jesus, Amém.",
+        "closing_prayer_en": "Heavenly Father, I come before You today as a woman who... Amen.",
+        "publish_date": "2025-12-20"
       }
     }
   ]
 }
 
-EXEMPLO CONCRETO de devocional sobre FÉ:
+EXEMPLO CONCRETO de devocional sobre FÉ para MULHERES:
 {
-  "message": "✓ Devocional sobre fé criado com sucesso!",
+  "message": "Claro! Acabei de criar um devocional sobre fé especialmente para mulheres. Espero que toque seu coração! 💕",
   "actions": [
     {
       "tool": "createDevotional",
       "args": {
-        "title_pt": "Fé Que Move Montanhas",
-        "title_en": "Faith That Moves Mountains",
-        "quote_author": "Charles Spurgeon",
-        "quote_text_pt": "A fé não opera no reino do possível. Não há glória para Deus naquilo que é humanamente possível. A fé começa onde as possibilidades terminam.",
-        "quote_text_en": "Faith does not operate in the realm of the possible. There is no glory for God in that which is humanly possible. Faith begins where possibilities end.",
-        "teaching_content_pt": "<p>A fé genuína não é simplesmente acreditar que Deus existe, mas confiar plenamente em Seu caráter e Suas promessas, mesmo quando as circunstâncias parecem impossíveis. Hebreus 11:1 nos ensina que 'a fé é a certeza daquilo que esperamos e a prova das coisas que não vemos.' Esta definição nos revela que a fé transcende o visível e se ancora no invisível – no próprio Deus.</p><p>Quando Jesus disse em Mateus 17:20 que a fé do tamanho de um grão de mostarda pode mover montanhas, Ele não estava falando sobre a quantidade de fé, mas sobre a qualidade dela. Não se trata de ter uma fé gigante, mas de ter fé em um Deus gigante. As montanhas que enfrentamos – seja doença, dificuldades financeiras, relacionamentos quebrados ou desafios espirituais – são oportunidades para vermos o poder de Deus em ação.</p><p>A jornada da fé não é isenta de dúvidas e questionamentos. Até mesmo João Batista, do cárcere, enviou discípulos para perguntar a Jesus: 'És tu aquele que havia de vir, ou esperamos outro?' A fé madura não ignora as perguntas difíceis, mas as traz diante de Deus com honestidade. É na vulnerabilidade de nossas dúvidas que Deus fortalece nossa confiança Nele.</p><p>Deus não nos chama para uma vida de fé cega, mas de fé fundamentada em quem Ele é. Cada promessa cumprida na Escritura, cada testemunho de Sua fidelidade em nossa própria história, e especialmente a prova suprema de Seu amor demonstrada na cruz de Cristo – tudo isso constrói o alicerce sobre o qual nossa fé se mantém firme. Que possamos cultivar uma fé que não apenas move montanhas, mas que honra a Deus em meio a elas.</p>",
+        "title_pt": "Fé Que Sustenta: Quando as Forças Parecem Acabar",
+        "title_en": "Faith That Sustains: When Strength Seems to Run Out",
+        "quote_author": "Corrie ten Boom",
+        "quote_text_pt": "Nunca tenha medo de confiar um futuro desconhecido a um Deus conhecido.",
+        "quote_text_en": "Never be afraid to trust an unknown future to a known God.",
+        "opening_inspiration_pt": "Às vezes, ser mulher significa carregar o mundo nos ombros e ainda assim sorrir. Mas e quando a força acaba?",
+        "opening_inspiration_en": "Sometimes being a woman means carrying the world on your shoulders and still smiling. But what happens when strength runs out?",
+        "scripture_reference": "Isaías 40:29-31",
+        "teaching_content_pt": "<p>Conheci Ana quando ela tinha 38 anos. Mãe solo de três filhos, trabalhava em dois empregos para sustentar a família após um divórcio doloroso. Ela me confidenciou: 'Acordo todos os dias sem saber de onde virá a força.' Seus olhos revelavam o cansaço de quem carrega mais do que deveria, mas também algo mais – uma centelha de esperança que se recusava a apagar.</p><p>A história de Ana me fez lembrar das palavras do profeta Isaías: 'Ele dá força ao cansado e multiplica as forças ao que não tem nenhum vigor.' Muitas de nós conhecemos esse cansaço profundo que Ana sentia. Não é apenas físico – é emocional, mental, espiritual. É aquele momento em que você está preparando o jantar, ajudando com a lição de casa, respondendo e-mails do trabalho, e de repente pergunta: 'Quanto tempo mais consigo fazer isso?'</p><p>Mas a promessa continua: 'Os que esperam no Senhor renovam as suas forças, sobem com asas como águias, correm e não se cansam, caminham e não se fatigam.' Esperar no Senhor não significa passividade – significa depositar ativamente nossa confiança Nele enquanto continuamos caminhando. Ana descobriu isso quando começou a acordar 15 minutos mais cedo, não para fazer mais tarefas, mas para estar com Deus. 'Foi quando parei de tentar ser forte sozinha que descobri uma força que não era minha', ela me disse meses depois.</p><p>A fé que sustenta não é aquela que remove nossos desafios instantaneamente. É a fé que nos capacita a enfrentá-los com uma força que transcende nossas próprias limitações. É saber que quando você está lavando louça pela terceira vez no dia, preparando mais uma marmita, acalmando mais uma crise, Deus está ali, multiplicando suas forças de formas que você talvez nem perceba no momento.</p><p>Hoje, Ana não tem menos responsabilidades. Mas tem mais paz. Ela aprendeu que fé não é fingir que está tudo bem – é confiar que Aquele que sustenta o universo também a sustenta em seus dias mais difíceis. E quando ela olha para trás, vê claramente: foi Deus quem a carregou quando ela pensou que não conseguiria dar mais um passo.</p>",
+        "teaching_content_en": "<p>I met Ana when she was 38 years old. A single mother of three, working two jobs to support her family after a painful divorce...</p>",
+        "reflection_questions_pt": [
+          "Em qual área da sua vida você tem tentado ser forte sozinha ao invés de buscar força em Deus?",
+          "Quais são as 'montanhas' que você carrega diariamente como mulher? Como seria entregar cada uma delas a Deus?",
+          "Você consegue identificar momentos em que Deus multiplicou suas forças sem que você percebesse na hora?",
+          "O que significa para você 'esperar no Senhor' em meio às demandas práticas do seu dia a dia?",
+          "Como você pode criar espaço na sua rotina para renovar suas forças em Deus, mesmo que seja apenas 15 minutos?"
+        ],
+        "reflection_questions_en": [
+          "In which area of your life have you been trying to be strong alone instead of seeking strength in God?",
+          "What are the 'mountains' you carry daily as a woman?"
+        ],
+        "action_step_pt": "Hoje, antes de dormir, escreva em um papel três áreas onde você precisa da força de Deus. Dobre o papel e coloque debaixo do travesseiro como símbolo de que você está entregando essas cargas a Ele durante a noite.",
+        "action_step_en": "Today, before bed, write on paper three areas where you need God's strength.",
+        "closing_prayer_pt": "Pai celestial, venho diante de Ti hoje como uma mulher cansada que precisa da Tua força. Confesso que muitas vezes tento carregar tudo sozinha, como se dependesse apenas de mim. Perdoa minha autossuficiência e ensina-me a esperar em Ti. Renova minhas forças hoje, Senhor. Que eu possa voar como águia acima das circunstâncias, que eu possa correr sem me cansar nas batalhas diárias, e que eu possa caminhar sem desfalecer nos longos caminhos. Tu conheces cada peso que carrego, cada responsabilidade que tenho, cada preocupação que me mantém acordada à noite. Multiplica minhas forças, Senhor, pois sem Ti nada posso fazer. Obrigada por ser meu sustento e minha força. Em nome de Jesus, Amém.",
+        "closing_prayer_en": "Heavenly Father, I come before You today as a tired woman who needs Your strength...",
+        "publish_date": "2025-12-16"
+      }
+    }
+  ]
+}
         "teaching_content_en": "<p>Genuine faith is not simply believing that God exists, but fully trusting in His character and His promises, even when circumstances seem impossible. Hebrews 11:1 teaches us that 'faith is the assurance of what we hope for and the proof of things not seen.' This definition reveals that faith transcends the visible and anchors itself in the invisible – in God Himself.</p><p>When Jesus said in Matthew 17:20 that faith the size of a mustard seed can move mountains, He was not talking about the quantity of faith, but about its quality. It's not about having giant faith, but about having faith in a giant God. The mountains we face – whether illness, financial difficulties, broken relationships, or spiritual challenges – are opportunities to see God's power in action.</p><p>The journey of faith is not free from doubts and questions. Even John the Baptist, from prison, sent disciples to ask Jesus: 'Are you the one who is to come, or should we expect someone else?' Mature faith does not ignore difficult questions but brings them before God with honesty. It is in the vulnerability of our doubts that God strengthens our trust in Him.</p><p>God does not call us to a life of blind faith, but of faith grounded in who He is. Every promise fulfilled in Scripture, every testimony of His faithfulness in our own story, and especially the supreme proof of His love demonstrated on the cross of Christ – all of this builds the foundation on which our faith stands firm. May we cultivate a faith that not only moves mountains but honors God in the midst of them.</p>",
         "reflection_questions_pt": [
           "Quais são as 'montanhas' que você está enfrentando atualmente e que parecem impossíveis de mover?",
@@ -344,11 +398,11 @@ EXEMPLO CONCRETO de devocional sobre FÉ:
   ]
 }
 
-Se o usuário apenas cumprimentar, responda:
-{
-  "message": "Olá! Sou o Devon IA, especialista em criar devocionais cristãos profundos e inspiradores. Sobre qual tema você gostaria de um devocional? (Exemplos: fé, amor, esperança, paz, perdão, gratidão, força, perseverança, etc.)",
-  "actions": []
-}`;
+CONVERSAÇÃO NATURAL - Exemplos:
+- Se cumprimentarem (primeira vez): { "message": "Olá! É um prazer conhecer você! 😊 Sou a Devon e estou aqui para te ajudar a criar devocionais inspiradores para mulheres. Sobre qual tema você gostaria de trabalhar hoje?", "actions": [] }
+- Se cumprimentarem (demais vezes): { "message": "Oi! Como posso te ajudar hoje? 💕", "actions": [] }
+- Se pedirem devocional: { "message": "Com prazer! Vou criar um devocional especial sobre esse tema. Um momento...", "actions": [...] }
+- Se agradecerem: { "message": "Fico muito feliz em ajudar! Que Deus abençoe! 🙏✨", "actions": [] }`;
 
       // Construir histórico de mensagens
       const conversationHistory = messages
@@ -445,39 +499,54 @@ Sua resposta${wantsToCreate ? ' (o usuário está pedindo para criar um devocion
           // Se o modelo não incluiu createDevotional, forçar a criação com conteúdo rico
           const themeData = {
             fé: {
-              title_pt: 'Fé Que Transforma Vidas',
-              title_en: 'Faith That Transforms Lives',
-              quote_author: 'Charles Spurgeon',
-              quote_pt: 'A fé não opera no reino do possível. Não há glória para Deus naquilo que é humanamente possível. A fé começa onde as possibilidades terminam.',
-              quote_en: 'Faith does not operate in the realm of the possible. There is no glory for God in that which is humanly possible. Faith begins where possibilities end.',
+              title_pt: 'Fé Que Sustenta a Mulher Moderna',
+              title_en: 'Faith That Sustains the Modern Woman',
+              quote_author: 'Corrie ten Boom',
+              quote_pt: 'Nunca tenha medo de confiar um futuro desconhecido a um Deus conhecido.',
+              quote_en: 'Never be afraid to trust an unknown future to a known God.',
+              scripture: 'Isaías 40:29-31',
+              inspiration_pt: 'Às vezes, ser mulher significa carregar o mundo nos ombros. Mas e quando a força acaba?',
+              inspiration_en: 'Sometimes being a woman means carrying the world on your shoulders. But what when strength runs out?',
             },
             amor: {
-              title_pt: 'O Amor Que Nunca Falha',
-              title_en: 'Love That Never Fails',
+              title_pt: 'O Amor Que Cura Feridas Profundas',
+              title_en: 'Love That Heals Deep Wounds',
               quote_author: 'C.S. Lewis',
-              quote_pt: 'Amar não é olhar um para o outro, mas olhar juntos na mesma direção.',
-              quote_en: 'Love is not looking at each other, but looking together in the same direction.',
+              quote_pt: 'Amar significa ser vulnerável. Ame algo e seu coração certamente será partido.',
+              quote_en: 'To love at all is to be vulnerable. Love anything and your heart will be wrung.',
+              scripture: '1 Coríntios 13:4-7',
+              inspiration_pt: 'Quantas de nós carregamos feridas do passado disfarçadas de força?',
+              inspiration_en: 'How many of us carry wounds from the past disguised as strength?',
             },
             esperança: {
-              title_pt: 'Esperança Que Não Decepciona',
-              title_en: 'Hope That Does Not Disappoint',
-              quote_author: 'Dietrich Bonhoeffer',
-              quote_pt: 'Somente aqueles que esperam podem receber o que está além de suas esperanças.',
-              quote_en: 'Only those who hope can receive what is beyond their hopes.',
+              title_pt: 'Esperança Para Dias Difíceis',
+              title_en: 'Hope For Difficult Days',
+              quote_author: 'Elisabeth Elliot',
+              quote_pt: 'Nunca duvide no escuro do que Deus te disse na luz.',
+              quote_en: 'Never doubt in the dark what God told you in the light.',
+              scripture: 'Jeremias 29:11',
+              inspiration_pt: 'E se os seus sonhos não morreram, apenas adormeceram?',
+              inspiration_en: 'What if your dreams didn\'t die, they just fell asleep?',
             },
             paz: {
-              title_pt: 'Paz Que Excede Todo Entendimento',
-              title_en: 'Peace That Surpasses All Understanding',
+              title_pt: 'Paz Em Meio Ao Caos Diário',
+              title_en: 'Peace Amid Daily Chaos',
               quote_author: 'Max Lucado',
-              quote_pt: 'A paz não é a ausência de problemas, mas a presença de Deus.',
-              quote_en: 'Peace is not the absence of problems, but the presence of God.',
+              quote_pt: 'A paz não é a ausência de problemas, mas a presença de Deus em meio a eles.',
+              quote_en: 'Peace is not the absence of problems, but the presence of God amid them.',
+              scripture: 'Filipenses 4:6-7',
+              inspiration_pt: 'Respirar fundo entre uma tarefa e outra. É disso que precisamos.',
+              inspiration_en: 'Taking a deep breath between one task and another. That\'s what we need.',
             },
             força: {
-              title_pt: 'Força na Fraqueza',
-              title_en: 'Strength in Weakness',
-              quote_author: 'Rick Warren',
-              quote_pt: 'Nossa maior fraqueza é a oportunidade de Deus mostrar Sua maior força.',
-              quote_en: 'Our greatest weakness is God\'s opportunity to show His greatest strength.',
+              title_pt: 'Força Para Não Desistir',
+              title_en: 'Strength To Not Give Up',
+              quote_author: 'Joyce Meyer',
+              quote_pt: 'Você não é um erro. Você não é um problema a ser resolvido. Mas você não será bem-sucedida sem desafios.',
+              quote_en: 'You are not a mistake. You are not a problem to be solved. But you won\'t be successful without challenges.',
+              scripture: 'Filipenses 4:13',
+              inspiration_pt: 'Toda mulher forte já foi fraca. Toda mulher forte escolheu levantar.',
+              inspiration_en: 'Every strong woman was once weak. Every strong woman chose to rise.',
             },
           };
 
@@ -489,32 +558,36 @@ Sua resposta${wantsToCreate ? ' (o usuário está pedindo para criar um devocion
             quote_author: parsedResponse.quote_author || currentTheme.quote_author,
             quote_text_pt: parsedResponse.quote_text_pt || currentTheme.quote_pt,
             quote_text_en: parsedResponse.quote_text_en || currentTheme.quote_en,
+            opening_inspiration_pt: parsedResponse.opening_inspiration_pt || currentTheme.inspiration_pt,
+            opening_inspiration_en: parsedResponse.opening_inspiration_en || currentTheme.inspiration_en,
+            scripture_reference: parsedResponse.scripture_reference || currentTheme.scripture,
             teaching_content_pt: parsedResponse.teaching_content_pt || parsedResponse.content_pt ||
-              `<p>Este devocional explora o tema de ${theme} através de uma perspectiva bíblica profunda. A Palavra de Deus nos ensina que ${theme} é fundamental para nossa caminhada cristã.</p>
-              <p>Quando olhamos para as Escrituras, vemos inúmeros exemplos de como ${theme} transformou vidas e mudou histórias. Não se trata apenas de um conceito teórico, mas de uma realidade viva que deve permear cada aspecto de nossa existência.</p>
-              <p>Em nossa jornada diária, somos constantemente desafiados a viver ${theme} de forma prática e autêntica. As dificuldades que enfrentamos são oportunidades para que ${theme} se manifeste de maneira ainda mais poderosa em nossas vidas.</p>
-              <p>Que possamos, portanto, buscar crescer em ${theme}, sabendo que Deus nos capacita e fortalece a cada dia. Ele é fiel para completar a boa obra que começou em nós.</p>`,
+              `<p>Conheci uma mulher chamada Sofia que lutava com ${theme} em sua vida diária. Como tantas de nós, ela acordava cedo, cuidava dos filhos, trabalhava, gerenciava a casa - e no meio de tudo isso, sentia que ${theme} era algo distante, quase inatingível.</p>
+              <p>Mas então algo mudou. Quando ela começou a entender o que a Bíblia realmente diz sobre ${theme}, descobriu que não era algo para ser conquistado, mas para ser recebido. A Palavra de Deus nos ensina que ${theme} não é fruto do nosso esforço, mas da nossa rendição.</p>
+              <p>Sofia me contou: 'Eu passava os dias tentando ser forte, tentando ter ${theme}. Mas quando finalmente parei e admiti que precisava de Deus, foi quando tudo começou a mudar.' Suas lágrimas ao compartilhar isso revelavam a profundidade da transformação que ela havia experimentado.</p>
+              <p>Hoje, Sofia ainda enfrenta os mesmos desafios diários. As crianças ainda adoecem, as contas ainda chegam, o cansaço ainda vem. Mas há algo diferente - ${theme} deixou de ser um conceito e se tornou uma presença real em sua vida. E se aconteceu com ela, pode acontecer com você.</p>
+              <p>Que possamos, como Sofia, deixar de lutar sozinhas e aprender a descansar em Quem é maior que nós. Deus não nos chama para sermos perfeitas, mas para sermos Suas. E nisso, descobrimos verdadeiramente o que significa experimentar ${theme}.</p>`,
             teaching_content_en: parsedResponse.teaching_content_en || parsedResponse.content_en ||
-              `<p>This devotional explores the theme of ${theme} through a deep biblical perspective. God's Word teaches us that ${theme} is fundamental to our Christian walk.</p>
-              <p>When we look at the Scriptures, we see countless examples of how ${theme} transformed lives and changed stories. It is not just a theoretical concept, but a living reality that should permeate every aspect of our existence.</p>
-              <p>In our daily journey, we are constantly challenged to live ${theme} in a practical and authentic way. The difficulties we face are opportunities for ${theme} to manifest even more powerfully in our lives.</p>
-              <p>May we therefore seek to grow in ${theme}, knowing that God empowers and strengthens us each day. He is faithful to complete the good work He began in us.</p>`,
+              `<p>I met a woman named Sofia who struggled with ${theme} in her daily life...</p>`,
             reflection_questions_pt: parsedResponse.reflection_questions_pt || [
-              `De que forma ${theme} tem sido manifesta em sua vida diária?`,
-              `Quais obstáculos você enfrenta ao buscar viver ${theme} de maneira autêntica?`,
-              `Como as Escrituras podem fortalecer sua compreensão sobre ${theme}?`,
-              `Que passos práticos você pode dar hoje para crescer em ${theme}?`,
+              `Como você tem lidado com ${theme} em sua rotina de mulher moderna?`,
+              `Quais áreas da sua vida (maternidade, relacionamentos, carreira) mais precisam de ${theme}?`,
+              `Você consegue identificar momentos em que tentou conquistar ${theme} pela própria força?`,
+              `O que significa para você entregar essa área a Deus ao invés de tentar controlar?`,
+              `Que mudanças práticas você pode fazer esta semana para cultivar ${theme}?`,
             ],
             reflection_questions_en: parsedResponse.reflection_questions_en || [
-              `In what ways has ${theme} been manifested in your daily life?`,
-              `What obstacles do you face in seeking to live ${theme} authentically?`,
-              `How can Scripture strengthen your understanding of ${theme}?`,
-              `What practical steps can you take today to grow in ${theme}?`,
+              `How have you been dealing with ${theme} in your routine as a modern woman?`,
+              `Which areas of your life (motherhood, relationships, career) need ${theme} most?`,
             ],
+            action_step_pt: parsedResponse.action_step_pt ||
+              `Hoje, reserve 10 minutos só para você e Deus. Escreva em um papel uma área específica onde você precisa experimentar ${theme}. Cole esse papel onde você possa ver todos os dias esta semana como lembrete de que você não está sozinha nessa jornada.`,
+            action_step_en: parsedResponse.action_step_en ||
+              `Today, set aside 10 minutes just for you and God. Write on paper a specific area where you need to experience ${theme}.`,
             closing_prayer_pt: parsedResponse.closing_prayer_pt ||
-              `Pai celestial, venho diante de Ti hoje reconhecendo minha necessidade de crescer em ${theme}. Sei que sem Ti nada posso fazer, mas em Ti encontro toda a força e capacitação que preciso. Ajuda-me a viver ${theme} de forma autêntica e transformadora. Que minha vida seja um reflexo do Teu amor e da Tua graça. Obrigado por nunca me abandonar e por estar comigo em cada passo desta jornada. Em nome de Jesus, Amém.`,
+              `Pai celestial, venho diante de Ti hoje como uma mulher que carrega muito nos ombros. Reconheço que tenho tentado viver ${theme} pela minha própria força, e confesso que estou cansada. Ensina-me, Senhor, a descansar em Ti e a receber ${theme} como um presente Teu, não como uma conquista minha. Ajuda-me a lembrar, especialmente nos momentos mais difíceis, que Tu és maior que todas as minhas circunstâncias. Que eu possa, como Sofia e tantas outras mulheres, descobrir que ${theme} verdadeira vem de estar perto de Ti. Obrigada por me amar e por nunca desistir de mim. Em nome de Jesus, Amém.`,
             closing_prayer_en: parsedResponse.closing_prayer_en ||
-              `Heavenly Father, I come before You today acknowledging my need to grow in ${theme}. I know that without You I can do nothing, but in You I find all the strength and empowerment I need. Help me to live ${theme} in an authentic and transformative way. May my life be a reflection of Your love and Your grace. Thank You for never abandoning me and for being with me in every step of this journey. In Jesus' name, Amen.`,
+              `Heavenly Father, I come before You today as a woman who carries so much on her shoulders...`,
           };
 
           console.log(`⚙️ Executando função: createDevotional`);

@@ -140,10 +140,128 @@ async function getRandom(req, res, next) {
   }
 }
 
+/**
+ * Sync endpoint for GlowUp app
+ * Returns devotionals formatted for GlowUp database structure
+ */
+async function sync(req, res, next) {
+  try {
+    const {
+      format = 'glowup',
+      language = 'pt',
+      from_date,
+      to_date,
+      published_only = 'true',
+      limit = 50,
+    } = req.query;
+
+    const { supabase } = require('../../config/database');
+
+    // Build query
+    let query = supabase
+      .from('devotionals')
+      .select(`
+        id,
+        slug,
+        publish_date,
+        day_number,
+        estimated_duration_minutes,
+        tags,
+        is_published,
+        theme_id,
+        created_at,
+        updated_at,
+        devotional_contents (
+          language,
+          title,
+          quote_author,
+          quote_text,
+          opening_inspiration,
+          scripture_reference,
+          teaching_content,
+          reflection_questions,
+          action_step,
+          closing_prayer
+        ),
+        biblical_references (
+          book,
+          chapter,
+          verse_start,
+          verse_end,
+          reference_text,
+          sort_order
+        )
+      `)
+      .order('publish_date', { ascending: false })
+      .limit(parseInt(limit));
+
+    // Filter by published status
+    if (published_only === 'true') {
+      query = query.eq('is_published', true);
+    }
+
+    // Filter by date range
+    if (from_date) {
+      query = query.gte('publish_date', from_date);
+    }
+    if (to_date) {
+      query = query.lte('publish_date', to_date);
+    }
+
+    const { data: devotionals, error } = await query;
+
+    if (error) throw error;
+
+    // Format for GlowUp
+    const formattedDevotionals = devotionals.map((dev) => {
+      const content = dev.devotional_contents?.find(c => c.language === language) ||
+                     dev.devotional_contents?.[0];
+
+      // Get first biblical reference if exists
+      const firstRef = dev.biblical_references?.[0];
+      const scriptureReference = content?.scripture_reference || (firstRef
+        ? `${firstRef.book} ${firstRef.chapter}:${firstRef.verse_start}${firstRef.verse_end ? `-${firstRef.verse_end}` : ''}`
+        : null);
+
+      return {
+        id: dev.id,
+        theme_id: dev.theme_id,
+        day_number: dev.day_number,
+        title: content?.title || '',
+        scripture_reference: scriptureReference,
+        teaching_content: content?.teaching_content || '',
+        reflection_questions: content?.reflection_questions || [],
+        closing_prayer: content?.closing_prayer || '',
+        opening_inspiration: content?.opening_inspiration || null,
+        action_step: content?.action_step || null,
+        estimated_duration_minutes: dev.estimated_duration_minutes,
+        tags: dev.tags || [],
+        publish_date: dev.publish_date,
+        published: dev.is_published,
+        quote_author: content?.quote_author || null,
+        quote_text: content?.quote_text || null,
+        created_at: dev.created_at,
+        updated_at: dev.updated_at,
+      };
+    });
+
+    res.json({
+      success: true,
+      format,
+      language,
+      count: formattedDevotionals.length,
+      devotionals: formattedDevotionals,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
 module.exports = {
   getAll,
   getBySlug,
   getBySlugAndLanguage,
   getToday,
   getRandom,
+  sync,
 };
