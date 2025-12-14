@@ -90,7 +90,16 @@ async function getById(req, res, next) {
           slug,
           theme_translations (language, name, description)
         ),
-        devotional_contents (language, title, content, prayer),
+        devotional_contents (
+          id,
+          language,
+          title,
+          quote_author,
+          quote_text,
+          teaching_content,
+          reflection_questions,
+          closing_prayer
+        ),
         biblical_references (id, book, chapter, verse_start, verse_end, reference_text, sort_order)
       `)
       .eq('id', id)
