@@ -16,6 +16,7 @@ const publicLimiter = rateLimit({
   },
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  validate: { trustProxy: false }, // Disable trust proxy validation
   handler: (req, res) => {
     res.status(429).json({
       error: {
@@ -42,6 +43,7 @@ const authLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { trustProxy: false }, // Disable trust proxy validation
   skipSuccessfulRequests: true, // Don't count successful logins
 });
 
@@ -60,6 +62,7 @@ const adminLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { trustProxy: false }, // Disable trust proxy validation
 });
 
 module.exports = {
