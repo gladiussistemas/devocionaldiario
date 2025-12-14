@@ -7,6 +7,7 @@ import Login from './components/Auth/Login';
 import Dashboard from './pages/Dashboard';
 import Devotionals from './pages/Devotionals';
 import DevotionalForm from './components/Devotionals/DevotionalForm';
+import DevotionalView from './components/Devotionals/DevotionalView';
 import Authors from './pages/Authors';
 import AuthorForm from './components/Authors/AuthorForm';
 import Themes from './pages/Themes';
@@ -52,7 +53,7 @@ function App() {
               <Route path="devotionals" element={<Devotionals />} />
               <Route path="devotionals/new" element={<DevotionalForm />} />
               <Route path="devotionals/edit/:id" element={<DevotionalForm />} />
-              <Route path="devotionals/view/:id" element={<DevotionalForm readOnly />} />
+              <Route path="devotionals/view/:id" element={<DevotionalView />} />
               <Route path="authors" element={<Authors />} />
               <Route path="authors/new" element={<AuthorForm />} />
               <Route path="authors/edit/:id" element={<AuthorForm />} />
