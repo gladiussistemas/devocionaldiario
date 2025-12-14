@@ -9,7 +9,11 @@
       "Bash(node -e:*)",
       "Bash(ls:*)",
       "Bash(dir \"C:\\Users\\italo\\source\\repo\\devocionaldiario\" /B)",
-      "Bash(copy:*)"
+      "Bash(copy:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push)",
+      "Bash(ssh root@201.54.11.117 \"docker-compose -f /opt/devocionaldiario/docker-compose.yml logs -f --tail=50 backend\")"
     ]
   }
 }

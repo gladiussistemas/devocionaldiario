@@ -31,8 +31,8 @@ export default function DevotionalView() {
     try {
       setLoading(true);
       setError(null);
-      const data = await devotionalService.getById(id);
-      setDevotional(data.devotional);
+      const devotional = await devotionalService.getById(id);
+      setDevotional(devotional);
     } catch (err) {
       setError(err.response?.data?.error?.message || 'Erro ao carregar devocional');
     } finally {
