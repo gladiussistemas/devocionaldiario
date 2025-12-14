@@ -52,6 +52,7 @@ function App() {
               <Route path="devotionals" element={<Devotionals />} />
               <Route path="devotionals/new" element={<DevotionalForm />} />
               <Route path="devotionals/edit/:id" element={<DevotionalForm />} />
+              <Route path="devotionals/view/:id" element={<DevotionalForm readOnly />} />
               <Route path="authors" element={<Authors />} />
               <Route path="authors/new" element={<AuthorForm />} />
               <Route path="authors/edit/:id" element={<AuthorForm />} />

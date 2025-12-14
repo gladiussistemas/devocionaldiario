@@ -31,6 +31,7 @@ import {
   Edit as EditIcon,
   Add as AddIcon,
   Search as SearchIcon,
+  Visibility as VisibilityIcon,
 } from '@mui/icons-material';
 import devotionalService from '../../services/devotionalService';
 
@@ -119,6 +120,10 @@ export default function DevotionalList() {
 
   const handleEdit = (id) => {
     navigate(`/devotionals/edit/${id}`);
+  };
+
+  const handleView = (id) => {
+    navigate(`/devotionals/view/${id}`);
   };
 
   const handleSelectAll = (event) => {
@@ -351,13 +356,23 @@ export default function DevotionalList() {
                   />
                 </TableCell>
                 <TableCell align="right">
-                  <IconButton
-                    size="small"
-                    onClick={() => handleEdit(devotional.id)}
-                    title="Editar"
-                  >
-                    <EditIcon />
-                  </IconButton>
+                  <Tooltip title="Visualizar">
+                    <IconButton
+                      size="small"
+                      onClick={() => handleView(devotional.id)}
+                      sx={{ mr: 0.5 }}
+                    >
+                      <VisibilityIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Editar">
+                    <IconButton
+                      size="small"
+                      onClick={() => handleEdit(devotional.id)}
+                    >
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
                 </TableCell>
               </TableRow>
             ))}
