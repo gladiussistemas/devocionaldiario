@@ -74,15 +74,30 @@ class OllamaService {
   // Implementação: Criar devocional
   async createDevotional(args) {
     try {
+      // Gerar slug a partir do título PT se não fornecido
+      const slug = args.slug || args.title_pt
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '') // Remove acentos
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+
+      // Usar data de hoje se não fornecida
+      const publishDate = args.publish_date || new Date().toISOString().split('T')[0];
+
+      console.log(`📅 Criando devocional: ${args.title_pt}`);
+      console.log(`🔗 Slug: ${slug}`);
+      console.log(`📆 Data de publicação: ${publishDate}`);
+
       const { data: devotional, error: devotionalError } = await supabase
         .from('devotionals')
         .insert([{
-          slug: args.slug,
-          publish_date: args.publish_date,
+          slug: slug,
+          publish_date: publishDate,
           day_number: args.day_number || null,
           estimated_duration_minutes: 10,
           tags: args.tags || [],
-          is_published: args.is_published || false,
+          is_published: args.is_published !== undefined ? args.is_published : true,
         }])
         .select()
         .single();
@@ -309,23 +324,35 @@ Sua resposta (execute ferramentas se necessário e depois responda):`;
       console.log('✅ Resposta recebida do Ollama');
 
       let responseText = response.response;
+      console.log('📝 Resposta bruta do Ollama:', responseText.substring(0, 500));
 
-      // Verificar se há chamadas de ferramentas na resposta
-      const toolMatches = responseText.match(/TOOL: (\w+)\nARGS: ({[\s\S]*?})\nEND_TOOL/g);
+      // Verificar se há chamadas de ferramentas na resposta (com ou sem END_TOOL)
+      const toolMatches = responseText.match(/TOOL:\s*(\w+)\s*\n\s*ARGS:\s*(\{[\s\S]*?\})\s*(?:\n|$)/g);
 
       if (toolMatches) {
+        console.log(`🔧 Encontradas ${toolMatches.length} chamadas de ferramentas`);
         const functionCalls = [];
 
         for (const toolMatch of toolMatches) {
-          const toolNameMatch = toolMatch.match(/TOOL: (\w+)/);
-          const argsMatch = toolMatch.match(/ARGS: ({[\s\S]*?})\n/);
+          const toolNameMatch = toolMatch.match(/TOOL:\s*(\w+)/);
+          const argsMatch = toolMatch.match(/ARGS:\s*(\{[\s\S]*?\})/);
 
           if (toolNameMatch && argsMatch) {
             const toolName = toolNameMatch[1];
-            const args = JSON.parse(argsMatch[1]);
+            let args;
 
-            console.log(`Executing function: ${toolName}`);
+            try {
+              args = JSON.parse(argsMatch[1]);
+            } catch (e) {
+              console.error(`❌ Erro ao fazer parse dos argumentos: ${argsMatch[1]}`);
+              continue;
+            }
+
+            console.log(`⚙️ Executando função: ${toolName}`);
+            console.log(`📋 Argumentos:`, JSON.stringify(args, null, 2));
+
             const functionResponse = await this.executeFunction(toolName, args);
+            console.log(`✅ Resposta da função:`, JSON.stringify(functionResponse, null, 2));
 
             functionCalls.push({
               name: toolName,
