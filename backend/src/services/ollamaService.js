@@ -264,33 +264,50 @@ class OllamaService {
       console.log(`📍 Ollama URL: ${this.ollama.config.host}`);
       console.log(`🎯 Modelo: ${this.model}`);
 
-      const systemPrompt = `Você é o Devon IA, um assistente especializado em criar devocionais.
+      const systemPrompt = `Você é o Devon IA, um assistente que cria devocionais cristãos automaticamente.
 
-REGRAS IMPORTANTES:
+IMPORTANTE: Você deve responder APENAS com JSON válido, sem texto adicional.
 
-1. SEMPRE crie devocionais COMPLETOS automaticamente, sem pedir confirmação do usuário
-2. Execute TODAS as funções necessárias em uma única interação
-3. Use searchBibleVerse para buscar versículos, depois IMEDIATAMENTE use createDevotional
-4. SEMPRE responda com texto explicando o que você fez
-5. NUNCA envie respostas vazias - sempre explique suas ações ao usuário
-
-Fluxo correto quando pedirem para criar um devocional:
-- Use searchBibleVerse (silenciosamente)
-- Use createDevotional (silenciosamente)
-- Responda: "✓ Devocional criado com sucesso! Título: [título]. Você pode visualizá-lo no painel de Devocionais."
-
-IMPORTANTE: Mesmo quando executar funções, SEMPRE inclua uma resposta em texto para o usuário.
-Nunca deixe o usuário sem resposta.
+Quando o usuário pedir para criar um devocional, responda com JSON no formato:
+{
+  "message": "sua mensagem amigável para o usuário",
+  "actions": [
+    {
+      "tool": "nome_da_ferramenta",
+      "args": { argumentos }
+    }
+  ]
+}
 
 FERRAMENTAS DISPONÍVEIS:
-${JSON.stringify(this.getToolDeclarations(), null, 2)}
+- searchBibleVerse: busca versículos sobre um tema
+- createDevotional: cria um devocional com título, conteúdo, perguntas e oração em PT e EN
 
-Para usar uma ferramenta, responda no formato:
-TOOL: nome_da_ferramenta
-ARGS: {json com argumentos}
-END_TOOL
+EXEMPLO DE RESPOSTA quando usuário pede devocional sobre fé:
+{
+  "message": "✓ Devocional sobre fé criado com sucesso! Você pode visualizá-lo no painel de Devocionais.",
+  "actions": [
+    {
+      "tool": "createDevotional",
+      "args": {
+        "title_pt": "A Força da Fé",
+        "title_en": "The Strength of Faith",
+        "teaching_content_pt": "A fé é o fundamento...",
+        "teaching_content_en": "Faith is the foundation...",
+        "reflection_questions_pt": ["Como sua fé tem crescido?"],
+        "reflection_questions_en": ["How has your faith grown?"],
+        "closing_prayer_pt": "Senhor, fortaleça minha fé...",
+        "closing_prayer_en": "Lord, strengthen my faith..."
+      }
+    }
+  ]
+}
 
-Você pode usar múltiplas ferramentas em sequência antes de responder ao usuário.`;
+Se o usuário apenas cumprimentar, responda:
+{
+  "message": "Olá! Sou o Devon IA. Posso criar devocionais inspiradores para você. Sobre qual tema gostaria de um devocional?",
+  "actions": []
+}`;
 
       // Construir histórico de mensagens
       const conversationHistory = messages
@@ -310,12 +327,13 @@ ${lastUserMessage}
 
 Sua resposta (execute ferramentas se necessário e depois responda):`;
 
-      // Fazer requisição ao Ollama
+      // Fazer requisição ao Ollama com formato JSON
       console.log('📤 Enviando requisição ao Ollama...');
       const response = await this.ollama.generate({
         model: this.model,
         prompt: fullPrompt,
         stream: false,
+        format: 'json',
         options: {
           temperature: 0.7,
           num_predict: 2000,
@@ -324,75 +342,46 @@ Sua resposta (execute ferramentas se necessário e depois responda):`;
       console.log('✅ Resposta recebida do Ollama');
 
       let responseText = response.response;
-      console.log('📝 Resposta bruta do Ollama:', responseText.substring(0, 500));
+      console.log('📝 Resposta bruta do Ollama:', responseText);
 
-      // Verificar se há chamadas de ferramentas na resposta (com ou sem END_TOOL)
-      const toolMatches = responseText.match(/TOOL:\s*(\w+)\s*\n\s*ARGS:\s*(\{[\s\S]*?\})\s*(?:\n|$)/g);
+      // Tentar fazer parse da resposta JSON
+      let parsedResponse;
+      try {
+        parsedResponse = JSON.parse(responseText);
+        console.log('✅ JSON parsed com sucesso');
+      } catch (e) {
+        console.error('❌ Erro ao fazer parse do JSON:', e.message);
+        return {
+          role: 'assistant',
+          content: 'Desculpe, tive um problema ao processar sua solicitação. Por favor, tente novamente.',
+        };
+      }
 
-      if (toolMatches) {
-        console.log(`🔧 Encontradas ${toolMatches.length} chamadas de ferramentas`);
-        const functionCalls = [];
+      // Processar ações se houver
+      const functionCalls = [];
+      if (parsedResponse.actions && Array.isArray(parsedResponse.actions)) {
+        console.log(`🔧 Encontradas ${parsedResponse.actions.length} ações para executar`);
 
-        for (const toolMatch of toolMatches) {
-          const toolNameMatch = toolMatch.match(/TOOL:\s*(\w+)/);
-          const argsMatch = toolMatch.match(/ARGS:\s*(\{[\s\S]*?\})/);
+        for (const action of parsedResponse.actions) {
+          const { tool, args } = action;
+          console.log(`⚙️ Executando função: ${tool}`);
+          console.log(`📋 Argumentos:`, JSON.stringify(args, null, 2));
 
-          if (toolNameMatch && argsMatch) {
-            const toolName = toolNameMatch[1];
-            let args;
+          const functionResponse = await this.executeFunction(tool, args);
+          console.log(`✅ Resposta da função:`, JSON.stringify(functionResponse, null, 2));
 
-            try {
-              args = JSON.parse(argsMatch[1]);
-            } catch (e) {
-              console.error(`❌ Erro ao fazer parse dos argumentos: ${argsMatch[1]}`);
-              continue;
-            }
-
-            console.log(`⚙️ Executando função: ${toolName}`);
-            console.log(`📋 Argumentos:`, JSON.stringify(args, null, 2));
-
-            const functionResponse = await this.executeFunction(toolName, args);
-            console.log(`✅ Resposta da função:`, JSON.stringify(functionResponse, null, 2));
-
-            functionCalls.push({
-              name: toolName,
-              response: functionResponse,
-            });
-
-            // Remover a chamada de ferramenta do texto de resposta
-            responseText = responseText.replace(toolMatch, '');
-          }
-        }
-
-        // Se executou ferramentas, pedir resposta final ao modelo
-        if (functionCalls.length > 0) {
-          const finalPrompt = `${systemPrompt}
-
-HISTÓRICO DA CONVERSA:
-${conversationHistory}
-
-FERRAMENTAS EXECUTADAS:
-${functionCalls.map(fc => `- ${fc.name}: ${JSON.stringify(fc.response)}`).join('\n')}
-
-Agora responda ao usuário explicando o que você fez. Seja direto e claro:`;
-
-          const finalResponse = await this.ollama.generate({
-            model: this.model,
-            prompt: finalPrompt,
-            stream: false,
+          functionCalls.push({
+            name: tool,
+            response: functionResponse,
           });
-
-          return {
-            role: 'assistant',
-            content: finalResponse.response.trim() || 'Tarefa concluída com sucesso!',
-            functionCalls,
-          };
         }
       }
 
+      // Retornar a mensagem com as funções executadas
       return {
         role: 'assistant',
-        content: responseText.trim() || 'Desculpe, não consegui processar sua mensagem.',
+        content: parsedResponse.message || 'Tarefa concluída!',
+        functionCalls: functionCalls.length > 0 ? functionCalls : undefined,
       };
     } catch (error) {
       console.error('❌ Ollama chat error:', error);
