@@ -48,51 +48,59 @@ export default function Login() {
         }}
       >
         <Paper elevation={3} sx={{ p: 4, width: '100%' }}>
-          <Typography variant="h4" component="h1" gutterBottom align="center">
-            📖 Devocional Admin
-          </Typography>
-          <Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 3 }}>
-            Faça login para gerenciar devocionais
-          </Typography>
+          <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'center', mb: 15, height: '80px', overflow: 'visible' }}>
+              <img
+                src="/logo.svg"
+                alt="Devocional Diário"
+                style={{ height: '250px', width: 'auto' }}
+              />
+            </Box>
+            <Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 3 }}>
+              Faça login para gerenciar devocionais
+            </Typography>
 
-          {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {error}
-            </Alert>
-          )}
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: '400px', width: '100%' }}>
+            {error && (
+              <Alert severity="error" sx={{ mb: 2, width: '100%' }}>
+                {error}
+              </Alert>
+            )}
 
-          <form onSubmit={handleSubmit}>
-            <TextField
-              label="Usuário ou Email"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              fullWidth
-              margin="normal"
-              required
-              autoFocus
-              disabled={loading}
-            />
-            <TextField
-              label="Senha"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              fullWidth
-              margin="normal"
-              required
-              disabled={loading}
-            />
-            <Button
-              type="submit"
-              variant="contained"
-              fullWidth
-              size="large"
-              sx={{ mt: 3 }}
-              disabled={loading}
-            >
-              {loading ? 'Entrando...' : 'Entrar'}
-            </Button>
-          </form>
+            <form onSubmit={handleSubmit} style={{ width: '100%' }}>
+              <TextField
+                label="Usuário ou Email"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                fullWidth
+                margin="normal"
+                required
+                autoFocus
+                disabled={loading}
+              />
+              <TextField
+                label="Senha"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                fullWidth
+                margin="normal"
+                required
+                disabled={loading}
+              />
+              <Button
+                type="submit"
+                variant="contained"
+                fullWidth
+                size="large"
+                sx={{ mt: 3 }}
+                disabled={loading}
+              >
+                {loading ? 'Entrando...' : 'Entrar'}
+              </Button>
+            </form>
+            </Box>
+          </Box>
         </Paper>
       </Box>
     </Container>

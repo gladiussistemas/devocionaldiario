@@ -1,4 +1,5 @@
 const Devotional = require('../../models/Devotional');
+const translationService = require('../../services/translationService');
 
 /**
  * Get all devotionals (including drafts)
@@ -38,7 +39,10 @@ async function getAll(req, res, next) {
     const flattenedDevotionals = result.devotionals.map(dev => ({
       id: dev.id,
       slug: dev.slug,
-      publication_date: dev.publication_date,
+      publish_date: dev.publish_date,
+      day_number: dev.day_number,
+      estimated_duration_minutes: dev.estimated_duration_minutes,
+      tags: dev.tags || [],
       is_published: dev.is_published,
       created_at: dev.created_at,
       updated_at: dev.updated_at,
@@ -114,13 +118,14 @@ async function getById(req, res, next) {
 async function create(req, res, next) {
   try {
     const devotionalData = req.body;
+    console.log('📝 Criando devocional:', JSON.stringify(devotionalData, null, 2));
 
     // Validate required fields
-    if (!devotionalData.slug || !devotionalData.publication_date) {
+    if (!devotionalData.slug || !devotionalData.publish_date) {
       return res.status(400).json({
         error: {
           code: 'MISSING_REQUIRED_FIELDS',
-          message: 'Slug and publication_date are required',
+          message: 'Slug and publish_date are required',
           status: 400,
         },
       });
@@ -222,6 +227,39 @@ async function togglePublish(req, res, next) {
   }
 }
 
+/**
+ * Translate devotional content from PT to EN
+ */
+async function translate(req, res, next) {
+  try {
+    const { content, biblical_references } = req.body;
+
+    // Check if translation service is available
+    if (!translationService.isAvailable()) {
+      return res.status(503).json({
+        success: false,
+        error: {
+          message: 'Translation service not available. Please configure DEEPL_API_KEY in environment variables.',
+        },
+      });
+    }
+
+    // Translate the devotional
+    const translated = await translationService.translateDevotional({
+      content,
+      biblical_references: biblical_references || [],
+    });
+
+    res.json({
+      success: true,
+      data: translated,
+    });
+  } catch (error) {
+    console.error('Translation error:', error);
+    next(error);
+  }
+}
+
 module.exports = {
   getAll,
   getById,
@@ -229,4 +267,5 @@ module.exports = {
   update,
   remove,
   togglePublish,
+  translate,
 };

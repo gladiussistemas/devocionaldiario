@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cat:*)",
+      "Bash(npm install:*)",
+      "Bash(npm start)",
+      "Bash(npm update:*)",
+      "Bash(node test-models.js:*)",
+      "Bash(node -e:*)",
+      "Bash(ls:*)",
+      "Bash(dir \"C:\\Users\\italo\\source\\repo\\devocionaldiario\" /B)",
+      "Bash(copy:*)"
+    ]
+  }
+}

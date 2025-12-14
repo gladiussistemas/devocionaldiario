@@ -13,23 +13,36 @@ import {
   CircularProgress,
   Divider,
 } from '@mui/material';
-import { Save as SaveIcon, ArrowBack as BackIcon } from '@mui/icons-material';
+import { Save as SaveIcon, ArrowBack as BackIcon, Translate as TranslateIcon } from '@mui/icons-material';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import devotionalService from '../../services/devotionalService';
-import authorService from '../../services/authorService';
-import themeService from '../../services/themeService';
 import BiblicalRefInput from './BiblicalRefInput';
 
 const initialFormData = {
   slug: '',
-  author_id: '',
-  theme_id: '',
-  publication_date: new Date().toISOString().split('T')[0],
+  publish_date: new Date().toISOString().split('T')[0],
+  day_number: '',
+  estimated_duration_minutes: 10,
+  tags: [],
   is_published: false,
   contents: {
-    pt: { title: '', content: '', prayer: '' },
-    en: { title: '', content: '', prayer: '' },
+    pt: {
+      title: '',
+      quote_author: '',
+      quote_text: '',
+      teaching_content: '',
+      reflection_questions: [],
+      closing_prayer: '',
+    },
+    en: {
+      title: '',
+      quote_author: '',
+      quote_text: '',
+      teaching_content: '',
+      reflection_questions: [],
+      closing_prayer: '',
+    },
   },
   biblical_references: [],
 };
@@ -40,32 +53,17 @@ export default function DevotionalForm() {
   const isEditing = Boolean(id);
 
   const [formData, setFormData] = useState(initialFormData);
-  const [authors, setAuthors] = useState([]);
-  const [themes, setThemes] = useState([]);
   const [currentTab, setCurrentTab] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [isTranslating, setIsTranslating] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
   useEffect(() => {
-    fetchAuthorsAndThemes();
     if (isEditing) {
       fetchDevotional();
     }
   }, [id]);
-
-  const fetchAuthorsAndThemes = async () => {
-    try {
-      const [authorsData, themesData] = await Promise.all([
-        authorService.getAllPublic(),
-        themeService.getAllPublic(),
-      ]);
-      setAuthors(authorsData);
-      setThemes(themesData);
-    } catch (err) {
-      setError('Erro ao carregar autores e temas');
-    }
-  };
 
   const fetchDevotional = async () => {
     try {
@@ -74,15 +72,38 @@ export default function DevotionalForm() {
 
       // Convert array of contents to object format
       const contentsObj = {
-        pt: { title: '', content: '', prayer: '' },
-        en: { title: '', content: '', prayer: '' }
+        pt: {
+          title: '',
+          quote_author: '',
+          quote_text: '',
+          opening_inspiration: '',
+          teaching_content: '',
+          reflection_questions: [],
+          action_step: '',
+          closing_prayer: '',
+        },
+        en: {
+          title: '',
+          quote_author: '',
+          quote_text: '',
+          opening_inspiration: '',
+          teaching_content: '',
+          reflection_questions: [],
+          action_step: '',
+          closing_prayer: '',
+        }
       };
       if (devotional.devotional_contents && Array.isArray(devotional.devotional_contents)) {
         devotional.devotional_contents.forEach((content) => {
           contentsObj[content.language] = {
             title: content.title || '',
-            content: content.content || '',
-            prayer: content.prayer || '',
+            quote_author: content.quote_author || '',
+            quote_text: content.quote_text || '',
+            opening_inspiration: content.opening_inspiration || '',
+            teaching_content: content.teaching_content || '',
+            reflection_questions: content.reflection_questions || [],
+            action_step: content.action_step || '',
+            closing_prayer: content.closing_prayer || '',
           };
         });
       }
@@ -90,9 +111,10 @@ export default function DevotionalForm() {
       // Transform API response to form structure
       setFormData({
         slug: devotional.slug,
-        author_id: devotional.author_id,
-        theme_id: devotional.theme_id,
-        publication_date: devotional.publication_date.split('T')[0],
+        publish_date: devotional.publish_date.split('T')[0],
+        day_number: devotional.day_number || '',
+        estimated_duration_minutes: devotional.estimated_duration_minutes || 10,
+        tags: devotional.tags || [],
         is_published: devotional.is_published,
         contents: contentsObj,
         biblical_references: devotional.biblical_references || [],
@@ -121,6 +143,66 @@ export default function DevotionalForm() {
     }));
   };
 
+  const handleTranslate = async () => {
+    try {
+      setIsTranslating(true);
+      setError(null);
+
+      // Check if PT content is filled
+      if (!formData.contents.pt.title || !formData.contents.pt.teaching_content) {
+        setError('Preencha pelo menos o Título e o Devocional em Português antes de traduzir');
+        return;
+      }
+
+      // Call translation API
+      const translated = await devotionalService.translate(
+        formData.contents.pt,
+        formData.biblical_references
+      );
+
+      console.log('📥 Conteúdo original PT:', formData.contents.pt);
+      console.log('📤 Tradução recebida EN:', translated.content);
+      console.log('📚 Referências traduzidas:', translated.biblical_references);
+
+      // Update EN content with translations
+      setFormData((prev) => ({
+        ...prev,
+        contents: {
+          ...prev.contents,
+          en: {
+            title: translated.content.title || '',
+            quote_author: translated.content.quote_author || '',
+            quote_text: translated.content.quote_text || '',
+            teaching_content: translated.content.teaching_content || '',
+            reflection_questions: translated.content.reflection_questions || [],
+            closing_prayer: translated.content.closing_prayer || '',
+          },
+        },
+        biblical_references: prev.biblical_references.map((ref, index) => {
+          const translatedRef = translated.biblical_references[index];
+          return {
+            ...ref,
+            reference_text: translatedRef?.reference_text_en || ref.reference_text,
+            scripture_text: {
+              pt: ref.scripture_text?.pt || '',
+              en: translatedRef?.scripture_text_en || '',
+            },
+          };
+        }),
+      }));
+
+      console.log('✅ Estado atualizado - verificando PT:', formData.contents.pt);
+
+      setSuccess('Conteúdo traduzido com sucesso! Revise a aba "English" antes de salvar.');
+      setCurrentTab(1); // Switch to EN tab
+    } catch (err) {
+      setError(err.response?.data?.error?.message || 'Erro ao traduzir conteúdo. Verifique se a chave do DeepL está configurada.');
+      console.error('Translation error:', err);
+    } finally {
+      setIsTranslating(false);
+    }
+  };
+
   const handleSubmit = async (publish = false) => {
     try {
       setLoading(true);
@@ -128,13 +210,13 @@ export default function DevotionalForm() {
       setSuccess(null);
 
       // Validate required fields
-      if (!formData.slug || !formData.author_id || !formData.theme_id) {
-        setError('Preencha todos os campos obrigatórios');
+      if (!formData.slug) {
+        setError('Preencha o slug');
         return;
       }
 
-      if (!formData.contents.pt.title || !formData.contents.pt.content) {
-        setError('Preencha pelo menos o título e conteúdo em português');
+      if (!formData.contents.pt.title || !formData.contents.pt.teaching_content) {
+        setError('Preencha pelo menos o título e o devocional em português');
         return;
       }
 
@@ -145,15 +227,21 @@ export default function DevotionalForm() {
         .map(([language, value]) => ({
           language,
           title: value.title,
-          content: value.content,
-          prayer: value.prayer,
+          quote_author: value.quote_author || null,
+          quote_text: value.quote_text || null,
+          opening_inspiration: value.opening_inspiration || null,
+          teaching_content: value.teaching_content,
+          reflection_questions: value.reflection_questions || [],
+          action_step: value.action_step || null,
+          closing_prayer: value.closing_prayer,
         }));
 
       const payload = {
         slug: formData.slug,
-        author_id: formData.author_id,
-        theme_id: formData.theme_id,
-        publication_date: formData.publication_date,
+        publish_date: formData.publish_date,
+        day_number: formData.day_number ? parseInt(formData.day_number) : null,
+        estimated_duration_minutes: parseInt(formData.estimated_duration_minutes),
+        tags: formData.tags,
         is_published: publish,
         contents: contentsArray,
         biblical_references: formData.biblical_references.filter(
@@ -222,8 +310,8 @@ export default function DevotionalForm() {
           <TextField
             label="Data de Publicação"
             type="date"
-            value={formData.publication_date}
-            onChange={(e) => handleChange('publication_date', e.target.value)}
+            value={formData.publish_date}
+            onChange={(e) => handleChange('publish_date', e.target.value)}
             fullWidth
             required
             InputLabelProps={{ shrink: true }}
@@ -232,43 +320,45 @@ export default function DevotionalForm() {
 
         <Box display="flex" gap={2} mb={3}>
           <TextField
-            label="Autor"
-            select
-            value={formData.author_id}
-            onChange={(e) => handleChange('author_id', e.target.value)}
-            fullWidth
-            required
-          >
-            <MenuItem value="">Selecione um autor</MenuItem>
-            {authors.map((author) => (
-              <MenuItem key={author.id} value={author.id}>
-                {author.name}
-              </MenuItem>
-            ))}
-          </TextField>
+            label="Dia do Plano"
+            type="number"
+            value={formData.day_number}
+            onChange={(e) => handleChange('day_number', e.target.value)}
+            helperText="Número do dia no plano/tema (ex: Dia 1 de 30)"
+          />
           <TextField
-            label="Tema"
-            select
-            value={formData.theme_id}
-            onChange={(e) => handleChange('theme_id', e.target.value)}
+            label="Duração (minutos)"
+            type="number"
+            value={formData.estimated_duration_minutes}
+            onChange={(e) => handleChange('estimated_duration_minutes', e.target.value)}
+            helperText="Tempo estimado de leitura"
+          />
+          <TextField
+            label="Tags"
+            value={formData.tags.join(', ')}
+            onChange={(e) => handleChange('tags', e.target.value.split(',').map(t => t.trim()).filter(Boolean))}
             fullWidth
-            required
-          >
-            <MenuItem value="">Selecione um tema</MenuItem>
-            {themes.map((theme) => (
-              <MenuItem key={theme.id} value={theme.id}>
-                {theme.name}
-              </MenuItem>
-            ))}
-          </TextField>
+            helperText="Palavras-chave separadas por vírgula"
+          />
         </Box>
 
         <Divider sx={{ my: 3 }} />
 
-        <Tabs value={currentTab} onChange={(e, newValue) => setCurrentTab(newValue)} sx={{ mb: 3 }}>
-          <Tab label="Português" />
-          <Tab label="English" />
-        </Tabs>
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+          <Tabs value={currentTab} onChange={(e, newValue) => setCurrentTab(newValue)}>
+            <Tab label="Português" />
+            <Tab label="English" />
+          </Tabs>
+          <Button
+            variant="outlined"
+            startIcon={isTranslating ? <CircularProgress size={16} /> : <TranslateIcon />}
+            onClick={handleTranslate}
+            disabled={isTranslating || loading || currentTab !== 0}
+            size="small"
+          >
+            {isTranslating ? 'Traduzindo...' : 'Traduzir para Inglês'}
+          </Button>
+        </Box>
 
         <Box>
           <TextField
@@ -280,14 +370,38 @@ export default function DevotionalForm() {
             sx={{ mb: 3 }}
           />
 
+          <Divider sx={{ my: 3 }} />
+          <Typography variant="h6" gutterBottom>Citação Diária</Typography>
+
+          <TextField
+            label="Autor da Citação"
+            value={formData.contents[currentLanguage].quote_author}
+            onChange={(e) => handleContentChange(currentLanguage, 'quote_author', e.target.value)}
+            fullWidth
+            sx={{ mb: 2 }}
+          />
+
+          <TextField
+            label="Texto da Citação"
+            value={formData.contents[currentLanguage].quote_text}
+            onChange={(e) => handleContentChange(currentLanguage, 'quote_text', e.target.value)}
+            fullWidth
+            multiline
+            rows={2}
+            sx={{ mb: 3 }}
+          />
+
+          <Divider sx={{ my: 3 }} />
+          <Typography variant="h6" gutterBottom>Conteúdo do Devocional</Typography>
+
           <Typography variant="subtitle2" gutterBottom>
-            Conteúdo {currentLanguage === 'pt' && '*'}
+            Devocional {currentLanguage === 'pt' && '*'}
           </Typography>
           <Box sx={{ mb: 3, '& .quill': { height: '300px', mb: 5 } }}>
             <ReactQuill
               theme="snow"
-              value={formData.contents[currentLanguage].content}
-              onChange={(value) => handleContentChange(currentLanguage, 'content', value)}
+              value={formData.contents[currentLanguage].teaching_content}
+              onChange={(value) => handleContentChange(currentLanguage, 'teaching_content', value)}
               modules={{
                 toolbar: [
                   [{ header: [1, 2, 3, false] }],
@@ -302,13 +416,30 @@ export default function DevotionalForm() {
           </Box>
 
           <Typography variant="subtitle2" gutterBottom>
-            Oração
+            Perguntas de Reflexão
+          </Typography>
+          <TextField
+            value={formData.contents[currentLanguage].reflection_questions.join('\n')}
+            onChange={(e) => handleContentChange(
+              currentLanguage,
+              'reflection_questions',
+              e.target.value.split('\n').filter(Boolean)
+            )}
+            fullWidth
+            multiline
+            rows={4}
+            sx={{ mb: 3 }}
+            helperText="Uma pergunta por linha"
+          />
+
+          <Typography variant="subtitle2" gutterBottom>
+            Oração {currentLanguage === 'pt' && '*'}
           </Typography>
           <Box sx={{ mb: 3, '& .quill': { height: '150px', mb: 5 } }}>
             <ReactQuill
               theme="snow"
-              value={formData.contents[currentLanguage].prayer}
-              onChange={(value) => handleContentChange(currentLanguage, 'prayer', value)}
+              value={formData.contents[currentLanguage].closing_prayer}
+              onChange={(value) => handleContentChange(currentLanguage, 'closing_prayer', value)}
               modules={{
                 toolbar: [
                   ['bold', 'italic', 'underline'],

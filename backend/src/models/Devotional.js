@@ -19,7 +19,10 @@ class Devotional {
       .select(`
         id,
         slug,
-        publication_date,
+        publish_date,
+        day_number,
+        estimated_duration_minutes,
+        tags,
         is_published,
         created_at,
         updated_at,
@@ -57,14 +60,14 @@ class Devotional {
     }
 
     if (startDate) {
-      query = query.gte('publication_date', startDate);
+      query = query.gte('publish_date', startDate);
     }
 
     if (endDate) {
-      query = query.lte('publication_date', endDate);
+      query = query.lte('publish_date', endDate);
     }
 
-    query = query.order('publication_date', { ascending: false });
+    query = query.order('publish_date', { ascending: false });
 
     const paginatedQuery = paginate(query, page, limit);
     const { data, error, count } = await paginatedQuery;
@@ -88,7 +91,10 @@ class Devotional {
       .select(`
         id,
         slug,
-        publication_date,
+        publish_date,
+        day_number,
+        estimated_duration_minutes,
+        tags,
         is_published,
         created_at,
         updated_at,
@@ -111,8 +117,13 @@ class Devotional {
         devotional_contents!inner (
           language,
           title,
-          content,
-          prayer
+          quote_author,
+          quote_text,
+          opening_inspiration,
+          teaching_content,
+          reflection_questions,
+          action_step,
+          closing_prayer
         ),
         biblical_references (
           id,
@@ -121,6 +132,7 @@ class Devotional {
           verse_start,
           verse_end,
           reference_text,
+          scripture_text,
           sort_order
         )
       `)
@@ -149,7 +161,10 @@ class Devotional {
       .select(`
         id,
         slug,
-        publication_date,
+        publish_date,
+        day_number,
+        estimated_duration_minutes,
+        tags,
         is_published,
         created_at,
         updated_at,
@@ -172,8 +187,13 @@ class Devotional {
         devotional_contents!inner (
           language,
           title,
-          content,
-          prayer
+          quote_author,
+          quote_text,
+          opening_inspiration,
+          teaching_content,
+          reflection_questions,
+          action_step,
+          closing_prayer
         ),
         biblical_references (
           id,
@@ -182,10 +202,11 @@ class Devotional {
           verse_start,
           verse_end,
           reference_text,
+          scripture_text,
           sort_order
         )
       `)
-      .eq('publication_date', today)
+      .eq('publish_date', today)
       .eq('is_published', true)
       .eq('devotional_contents.language', language)
       .eq('authors.author_translations.language', language)
@@ -229,7 +250,10 @@ class Devotional {
       .select(`
         id,
         slug,
-        publication_date,
+        publish_date,
+        day_number,
+        estimated_duration_minutes,
+        tags,
         is_published,
         created_at,
         updated_at,
@@ -252,8 +276,13 @@ class Devotional {
         devotional_contents!inner (
           language,
           title,
-          content,
-          prayer
+          quote_author,
+          quote_text,
+          opening_inspiration,
+          teaching_content,
+          reflection_questions,
+          action_step,
+          closing_prayer
         ),
         biblical_references (
           id,
@@ -262,6 +291,7 @@ class Devotional {
           verse_start,
           verse_end,
           reference_text,
+          scripture_text,
           sort_order
         )
       `)
@@ -290,7 +320,10 @@ class Devotional {
       slug,
       author_id,
       theme_id,
-      publication_date,
+      publish_date,
+      day_number,
+      estimated_duration_minutes = 10,
+      tags = [],
       is_published = false,
       contents,
       biblical_references = [],
@@ -303,7 +336,10 @@ class Devotional {
         slug,
         author_id,
         theme_id,
-        publication_date,
+        publish_date,
+        day_number,
+        estimated_duration_minutes,
+        tags,
         is_published,
       })
       .select()
@@ -316,8 +352,13 @@ class Devotional {
       devotional_id: devotional.id,
       language: c.language,
       title: c.title,
-      content: c.content,
-      prayer: c.prayer,
+      quote_author: c.quote_author || null,
+      quote_text: c.quote_text || null,
+      opening_inspiration: c.opening_inspiration || null,
+      teaching_content: c.teaching_content,
+      reflection_questions: c.reflection_questions || [],
+      action_step: c.action_step || null,
+      closing_prayer: c.closing_prayer,
     }));
 
     const { error: contError } = await supabase
@@ -335,6 +376,7 @@ class Devotional {
         verse_start: ref.verse_start || null,
         verse_end: ref.verse_end || null,
         reference_text: ref.reference_text,
+        scripture_text: ref.scripture_text || {},
         sort_order: ref.sort_order || index,
       }));
 
@@ -356,7 +398,10 @@ class Devotional {
       slug,
       author_id,
       theme_id,
-      publication_date,
+      publish_date,
+      day_number,
+      estimated_duration_minutes,
+      tags,
       is_published,
       contents,
       biblical_references,
@@ -367,7 +412,10 @@ class Devotional {
     if (slug !== undefined) updateData.slug = slug;
     if (author_id !== undefined) updateData.author_id = author_id;
     if (theme_id !== undefined) updateData.theme_id = theme_id;
-    if (publication_date !== undefined) updateData.publication_date = publication_date;
+    if (publish_date !== undefined) updateData.publish_date = publish_date;
+    if (day_number !== undefined) updateData.day_number = day_number;
+    if (estimated_duration_minutes !== undefined) updateData.estimated_duration_minutes = estimated_duration_minutes;
+    if (tags !== undefined) updateData.tags = tags;
     if (is_published !== undefined) updateData.is_published = is_published;
     updateData.updated_at = new Date().toISOString();
 
@@ -387,8 +435,13 @@ class Devotional {
             devotional_id: id,
             language: content.language,
             title: content.title,
-            content: content.content,
-            prayer: content.prayer,
+            quote_author: content.quote_author || null,
+            quote_text: content.quote_text || null,
+            opening_inspiration: content.opening_inspiration || null,
+            teaching_content: content.teaching_content,
+            reflection_questions: content.reflection_questions || [],
+            action_step: content.action_step || null,
+            closing_prayer: content.closing_prayer,
           }, {
             onConflict: 'devotional_id,language'
           });
@@ -414,6 +467,7 @@ class Devotional {
           verse_start: ref.verse_start || null,
           verse_end: ref.verse_end || null,
           reference_text: ref.reference_text,
+          scripture_text: ref.scripture_text || {},
           sort_order: ref.sort_order || index,
         }));
 
@@ -492,14 +546,23 @@ class Devotional {
    * Format devotional response
    */
   static _formatDevotional(data) {
+    const content = data.devotional_contents[0] || {};
     return {
       id: data.id,
       slug: data.slug,
-      title: data.devotional_contents[0]?.title,
-      content: data.devotional_contents[0]?.content,
-      prayer: data.devotional_contents[0]?.prayer,
-      publication_date: data.publication_date,
+      publish_date: data.publish_date,
+      day_number: data.day_number,
+      estimated_duration_minutes: data.estimated_duration_minutes,
+      tags: data.tags || [],
       is_published: data.is_published,
+      title: content.title,
+      quote_author: content.quote_author,
+      quote_text: content.quote_text,
+      opening_inspiration: content.opening_inspiration,
+      teaching_content: content.teaching_content,
+      reflection_questions: content.reflection_questions || [],
+      action_step: content.action_step,
+      closing_prayer: content.closing_prayer,
       author: {
         id: data.authors?.id,
         slug: data.authors?.slug,
@@ -521,6 +584,7 @@ class Devotional {
           verse_start: ref.verse_start,
           verse_end: ref.verse_end,
           reference_text: ref.reference_text,
+          scripture_text: ref.scripture_text || {},
         })),
       created_at: data.created_at,
       updated_at: data.updated_at,

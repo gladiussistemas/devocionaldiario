@@ -40,12 +40,18 @@ router.post(
   authorize('editor', 'admin'),
   [
     body('slug').notEmpty().withMessage('Slug is required'),
-    body('publication_date').isDate().withMessage('Valid publication date is required'),
+    body('publish_date').isDate().withMessage('Valid publish date is required'),
+    body('day_number').optional().isInt().withMessage('Day number must be an integer'),
+    body('estimated_duration_minutes').optional().isInt().withMessage('Duration must be an integer'),
+    body('tags').optional().isArray().withMessage('Tags must be an array'),
     body('contents').isArray({ min: 1 }).withMessage('At least one content is required'),
     body('contents.*.language').isIn(['pt', 'en']).withMessage('Language must be pt or en'),
     body('contents.*.title').notEmpty().withMessage('Title is required'),
-    body('contents.*.content').notEmpty().withMessage('Content is required'),
-    body('contents.*.prayer').notEmpty().withMessage('Prayer is required'),
+    body('contents.*.teaching_content').notEmpty().withMessage('Teaching content is required'),
+    body('contents.*.closing_prayer').notEmpty().withMessage('Closing prayer is required'),
+    body('contents.*.quote_author').optional().isString(),
+    body('contents.*.quote_text').optional().isString(),
+    body('contents.*.reflection_questions').optional().isArray().withMessage('Reflection questions must be an array'),
     handleValidationErrors,
   ],
   devotionalController.create
@@ -86,6 +92,22 @@ router.patch(
     handleValidationErrors,
   ],
   devotionalController.togglePublish
+);
+
+/**
+ * @route   POST /api/admin/devotionals/translate
+ * @desc    Translate devotional content from PT to EN using DeepL
+ * @access  Private (editor, admin)
+ */
+router.post(
+  '/translate',
+  authorize('editor', 'admin'),
+  [
+    body('content').isObject().withMessage('Content object is required'),
+    body('biblical_references').optional().isArray(),
+    handleValidationErrors,
+  ],
+  devotionalController.translate
 );
 
 module.exports = router;

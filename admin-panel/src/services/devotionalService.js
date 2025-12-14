@@ -38,6 +38,15 @@ const devotionalService = {
     });
     return response.data.devotional;
   },
+
+  // Translate devotional content from PT to EN
+  async translate(content, biblicalReferences = []) {
+    const response = await api.post('/admin/devotionals/translate', {
+      content,
+      biblical_references: biblicalReferences,
+    });
+    return response.data.data;
+  },
 };
 
 export default devotionalService;

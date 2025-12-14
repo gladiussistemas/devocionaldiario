@@ -11,11 +11,19 @@ import Authors from './pages/Authors';
 import AuthorForm from './components/Authors/AuthorForm';
 import Themes from './pages/Themes';
 import ThemeForm from './components/Themes/ThemeForm';
+import DevonAI from './pages/DevonAI';
 
 const theme = createTheme({
+  typography: {
+    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+    fontWeightLight: 300,
+    fontWeightRegular: 400,
+    fontWeightMedium: 500,
+    fontWeightBold: 600,
+  },
   palette: {
     primary: {
-      main: '#254699',
+      main: '#ff0000',
     },
     secondary: {
       main: '#16324e',
@@ -50,6 +58,7 @@ function App() {
               <Route path="themes" element={<Themes />} />
               <Route path="themes/new" element={<ThemeForm />} />
               <Route path="themes/edit/:id" element={<ThemeForm />} />
+              <Route path="devon-ai" element={<DevonAI />} />
             </Route>
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
