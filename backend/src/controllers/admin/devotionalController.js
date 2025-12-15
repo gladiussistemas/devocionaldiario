@@ -96,8 +96,11 @@ async function getById(req, res, next) {
           title,
           quote_author,
           quote_text,
+          opening_inspiration,
+          scripture_reference,
           teaching_content,
           reflection_questions,
+          action_step,
           closing_prayer
         ),
         biblical_references (id, book, chapter, verse_start, verse_end, reference_text, sort_order)

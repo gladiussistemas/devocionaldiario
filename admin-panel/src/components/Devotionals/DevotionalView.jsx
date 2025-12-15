@@ -136,6 +136,15 @@ export default function DevotionalView() {
             {currentContent.title || 'Sem título'}
           </Typography>
 
+          {/* Referência Bíblica */}
+          {currentContent.scripture_reference && (
+            <Paper sx={{ p: 2, mb: 3, bgcolor: 'secondary.light', color: 'white' }}>
+              <Typography variant="h6" align="center" sx={{ fontWeight: 600 }}>
+                📖 {currentContent.scripture_reference}
+              </Typography>
+            </Paper>
+          )}
+
           {/* Citação */}
           {currentContent.quote_text && (
             <Paper sx={{ p: 3, mb: 3, bgcolor: 'grey.50', borderLeft: '4px solid', borderColor: 'primary.main' }}>
@@ -147,6 +156,15 @@ export default function DevotionalView() {
                   — {currentContent.quote_author}
                 </Typography>
               )}
+            </Paper>
+          )}
+
+          {/* Inspiração de Abertura */}
+          {currentContent.opening_inspiration && (
+            <Paper sx={{ p: 3, mb: 3, bgcolor: 'primary.light', color: 'white' }}>
+              <Typography variant="h6" sx={{ fontStyle: 'italic', textAlign: 'center' }}>
+                ✨ {currentContent.opening_inspiration}
+              </Typography>
             </Paper>
           )}
 
@@ -183,6 +201,20 @@ export default function DevotionalView() {
             </Box>
           )}
 
+          {/* Passo de Ação */}
+          {currentContent.action_step && (
+            <Box mb={4}>
+              <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: 'primary.main', mb: 2 }}>
+                💪 Passo de Ação
+              </Typography>
+              <Paper sx={{ p: 3, bgcolor: 'success.light', color: 'white' }}>
+                <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                  {currentContent.action_step}
+                </Typography>
+              </Paper>
+            </Box>
+          )}
+
           {/* Oração Final */}
           {currentContent.closing_prayer && (
             <Box mb={4}>
@@ -190,9 +222,14 @@ export default function DevotionalView() {
                 Oração
               </Typography>
               <Paper sx={{ p: 3, bgcolor: 'grey.50' }}>
-                <Typography variant="body1" sx={{ fontStyle: 'italic', whiteSpace: 'pre-line' }}>
-                  {currentContent.closing_prayer}
-                </Typography>
+                <Box
+                  sx={{
+                    fontStyle: 'italic',
+                    whiteSpace: 'pre-line',
+                    '& p': { mb: 1 },
+                  }}
+                  dangerouslySetInnerHTML={{ __html: currentContent.closing_prayer }}
+                />
               </Paper>
             </Box>
           )}
