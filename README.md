@@ -14,7 +14,7 @@ API RESTful de devocionais cristãos com suporte multi-idioma (PT/EN), desenvolv
 
 ## Tecnologias
 
-### Backend
+### Backend 
 - Node.js 18+
 - Express.js
 - PostgreSQL (Supabase)

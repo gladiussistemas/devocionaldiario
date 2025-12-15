@@ -15,7 +15,8 @@
       "Bash(git push)",
       "Bash(ssh root@201.54.11.117 \"docker-compose -f /opt/devocionaldiario/docker-compose.yml logs -f --tail=50 backend\")",
       "Bash(echo \"Execute estes comandos no servidor e me envie o resultado:\n\nsystemctl status nginx.service\n\njournalctl -xeu nginx.service -n 50\n\nnginx -t\n\")",
-      "Bash(git restore:*)"
+      "Bash(git restore:*)",
+      "Bash(dir:*)"
     ]
   }
 }
