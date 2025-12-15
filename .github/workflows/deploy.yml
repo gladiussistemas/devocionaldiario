@@ -18,7 +18,9 @@ jobs:
       - name: Deploy Backend
         run: |
           cd /opt/devocionaldiario
-          git pull origin main
+          git fetch origin
+          git reset --hard origin/main
+          git clean -fd
           docker-compose down
           docker-compose build --no-cache backend
           docker-compose up -d
