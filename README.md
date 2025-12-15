@@ -10,7 +10,7 @@ API RESTful de devocionais cristãos com suporte multi-idioma (PT/EN), desenvolv
 - Busca full-text no conteúdo
 - Referências bíblicas estruturadas
 - Painel administrativo para gerenciamento de conteúdo
-- API pública com rate limiting
+- API pública com rate limiting 
 
 ## Tecnologias
 
