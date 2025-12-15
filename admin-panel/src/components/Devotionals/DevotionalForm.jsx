@@ -365,9 +365,39 @@ export default function DevotionalForm({ readOnly = false }) {
         <Divider sx={{ my: 3 }} />
 
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-          <Tabs value={currentTab} onChange={(e, newValue) => setCurrentTab(newValue)}>
-            <Tab label="Português" />
-            <Tab label="English" />
+          <Tabs
+            value={currentTab}
+            onChange={(e, newValue) => setCurrentTab(newValue)}
+            sx={{
+              '& .MuiTab-root': {
+                fontWeight: 600,
+                fontSize: '1rem',
+              },
+              '& .Mui-selected': {
+                backgroundColor: currentTab === 0 ? 'success.light' : 'info.light',
+                color: currentTab === 0 ? 'success.dark' : 'info.dark',
+              }
+            }}
+          >
+            <Tab
+              label="🇧🇷 Português (Conteúdo Original)"
+              sx={{
+                minWidth: 240,
+                border: '2px solid',
+                borderColor: currentTab === 0 ? 'success.main' : 'grey.300',
+                borderRadius: 1,
+                mr: 1
+              }}
+            />
+            <Tab
+              label="🇺🇸 English (Tradução)"
+              sx={{
+                minWidth: 240,
+                border: '2px solid',
+                borderColor: currentTab === 1 ? 'info.main' : 'grey.300',
+                borderRadius: 1
+              }}
+            />
           </Tabs>
           <Button
             variant="outlined"
@@ -376,9 +406,33 @@ export default function DevotionalForm({ readOnly = false }) {
             disabled={isTranslating || loading || currentTab !== 0}
             size="small"
           >
-            {isTranslating ? 'Traduzindo...' : 'Traduzir para Inglês'}
+            {isTranslating ? 'Traduzindo...' : 'Traduzir PT → EN'}
           </Button>
         </Box>
+
+        {/* Language indicator banner */}
+        <Paper
+          sx={{
+            p: 2,
+            mb: 3,
+            bgcolor: currentTab === 0 ? 'success.light' : 'info.light',
+            borderLeft: '4px solid',
+            borderColor: currentTab === 0 ? 'success.main' : 'info.main',
+          }}
+        >
+          <Typography variant="body1" sx={{ fontWeight: 600 }}>
+            {currentTab === 0 ? (
+              <>🇧🇷 Editando conteúdo em <strong>PORTUGUÊS</strong> (idioma original)</>
+            ) : (
+              <>🇺🇸 Editando conteúdo em <strong>INGLÊS</strong> (tradução)</>
+            )}
+          </Typography>
+          {currentTab === 1 && (
+            <Typography variant="body2" sx={{ mt: 0.5 }}>
+              Use o botão "Traduzir PT → EN" acima para traduzir automaticamente do português.
+            </Typography>
+          )}
+        </Paper>
 
         <Box>
           <TextField
