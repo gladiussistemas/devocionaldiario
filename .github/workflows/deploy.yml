@@ -33,7 +33,7 @@ jobs:
       - name: Build Admin Panel
         run: |
           cd admin-panel
-          npm ci
+          npm install
           npm run build
         env:
           VITE_API_URL: https://api.gladiussistemas.com.br
