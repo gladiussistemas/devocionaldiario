@@ -8,7 +8,7 @@ API RESTful de devocionais cristãos com suporte multi-idioma (PT/EN), desenvolv
 - Suporte a múltiplos idiomas (Português e Inglês)
 - Filtros por autor, tema e período
 - Busca full-text no conteúdo
-- Referências bíblicas estruturadas
+- Referências bíblicas estruturadas 
 - Painel administrativo para gerenciamento de conteúdo
 - API pública com rate limiting 
 
