@@ -38,6 +38,26 @@ router.get(
 );
 
 /**
+ * @route   GET /api/devotionals/sync
+ * @desc    Get devotionals formatted for GlowUp app synchronization
+ * @access  Public
+ * @note    MUST be before /:slug route to avoid conflict
+ */
+router.get(
+  '/sync',
+  [
+    query('format').optional().isIn(['glowup']).withMessage('Format must be glowup'),
+    query('language').optional().isIn(['pt', 'en']).withMessage('Language must be pt or en'),
+    query('from_date').optional().isDate().withMessage('From date must be in YYYY-MM-DD format'),
+    query('to_date').optional().isDate().withMessage('To date must be in YYYY-MM-DD format'),
+    query('published_only').optional().isBoolean().withMessage('Published only must be a boolean'),
+    query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('Limit must be between 1 and 100'),
+    handleValidationErrors,
+  ],
+  devotionalController.sync
+);
+
+/**
  * @route   GET /api/devotionals/random
  * @desc    Get random devotional
  * @access  Public
@@ -74,25 +94,6 @@ router.get(
 router.get(
   '/:slug/:language',
   devotionalController.getBySlugAndLanguage
-);
-
-/**
- * @route   GET /api/devotionals/sync
- * @desc    Get devotionals formatted for GlowUp app synchronization
- * @access  Public
- */
-router.get(
-  '/sync',
-  [
-    query('format').optional().isIn(['glowup']).withMessage('Format must be glowup'),
-    query('language').optional().isIn(['pt', 'en']).withMessage('Language must be pt or en'),
-    query('from_date').optional().isDate().withMessage('From date must be in YYYY-MM-DD format'),
-    query('to_date').optional().isDate().withMessage('To date must be in YYYY-MM-DD format'),
-    query('published_only').optional().isBoolean().withMessage('Published only must be a boolean'),
-    query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('Limit must be between 1 and 100'),
-    handleValidationErrors,
-  ],
-  devotionalController.sync
 );
 
 module.exports = router;
