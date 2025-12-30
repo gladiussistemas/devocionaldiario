@@ -21,7 +21,11 @@
       "Bash(node test-api-response.js:*)",
       "Bash(npm run build:*)",
       "Bash(node fix-zaqueu-content.js:*)",
-      "Bash(ssh root@201.54.11.117 \"cd /opt/devocionaldiario && git pull && docker-compose -f /opt/devocionaldiario/docker-compose.yml down && docker-compose -f /opt/devocionaldiario/docker-compose.yml up -d --build\")"
+      "Bash(ssh root@201.54.11.117 \"cd /opt/devocionaldiario && git pull && docker-compose -f /opt/devocionaldiario/docker-compose.yml down && docker-compose -f /opt/devocionaldiario/docker-compose.yml up -d --build\")",
+      "Bash(ssh:*)",
+      "Bash(echo \"Execute estes comandos no servidor e me envie o resultado:\n\n# 1. Verificar se o Ollama está rodando\nsystemctl status ollama\n\n# 2. Verificar se o Ollama está respondendo\ncurl http://localhost:11434/api/version\n\n# 3. Verificar logs do Ollama\njournalctl -u ollama -n 50 --no-pager\n\n# 4. Verificar logs do backend Devon\ncd /opt/devocionaldiario && docker-compose logs --tail=100 backend | grep -i ollama\n\n# 5. Verificar se o modelo está baixado\nollama list\")",
+      "Bash(echo \"Execute este comando no servidor para atualizar o .env:\n\nssh root@201.54.11.117\n\n# Depois, dentro do servidor:\ncd /opt/devocionaldiario/backend\n\n# Editar o .env e adicionar as linhas:\nnano .env\n\n# Adicione estas linhas no arquivo:\nAI_PROVIDER=deepseek\nDEEPSEEK_API_KEY=sk-bcd6c87d45bd40d6b5622de9abb3ff3c\nDEEPSEEK_MODEL=deepseek-chat\n\n# Salve \\(Ctrl+O, Enter, Ctrl+X\\)\n\n# Depois volte para a raiz do projeto e reinicie:\ncd /opt/devocionaldiario\ndocker-compose down\ndocker-compose up -d --build\n\n# Verificar os logs:\ndocker-compose logs -f backend\")",
+      "Bash(echo \"Para verificar se o deploy já terminou e o DeepSeek está funcionando, execute no servidor:\n\nssh root@201.54.11.117\n\n# Verificar se os containers estão rodando:\ncd /opt/devocionaldiario && docker-compose ps\n\n# Verificar os logs do backend para ver se o DeepSeek está configurado:\ndocker-compose logs --tail=20 backend | grep -i ''devon\\\\|deepseek\\\\|server running''\n\n# Se quiser ver os logs em tempo real:\ndocker-compose logs -f backend\")"
     ]
   }
 }
