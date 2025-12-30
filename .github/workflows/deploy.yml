@@ -52,13 +52,18 @@ jobs:
         env:
           VITE_API_URL: https://api.gladiussistemas.com.br
 
-      - name: Copy admin build to production
+      - name: Deploy admin panel files (containers are stopped)
         run: |
           cd /opt/devocionaldiario
-          echo "📦 Copying admin panel build files..."
-          # Use rsync to sync files (safer than rm + cp)
-          rsync -av --delete ${{ github.workspace }}/admin-panel/dist/ admin-panel/dist/
-          echo "✅ Admin panel files synced"
+          echo "📦 Deploying admin panel files..."
+          # Remove old dist folder completely (containers are down, so it's safe)
+          sudo rm -rf admin-panel/dist
+          # Copy new build
+          sudo cp -r ${{ github.workspace }}/admin-panel/dist admin-panel/
+          # Set proper permissions for nginx
+          sudo chown -R $USER:$USER admin-panel/dist
+          sudo chmod -R 755 admin-panel/dist
+          echo "✅ Admin panel deployed"
 
       - name: Start all containers
         run: |
