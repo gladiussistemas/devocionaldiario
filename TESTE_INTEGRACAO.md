@@ -6,7 +6,7 @@
 - [x] Migration 006 - Campos em devotionals
 - [x] Migration 007 - Campos em devotional_contents
 - [x] Migration 008 - scripture_text em biblical_references
-- [ ] **Migration 009 - scripture_reference em devotional_contents** (EXECUTAR)
+- [x] **Migration 009 - scripture_reference em devotional_contents** (EXECUTAR)
 
 ### 2. Código Atualizado
 - [x] Rotas corrigidas (sync antes de :slug)
