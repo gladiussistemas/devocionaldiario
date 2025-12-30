@@ -75,13 +75,28 @@ jobs:
       - name: Wait for services
         run: |
           echo "⏳ Waiting for services to be ready..."
-          sleep 10
+          sleep 15
 
       - name: Verify backend health
         run: |
           echo "🏥 Checking backend health..."
-          curl -f http://localhost:3000/health || (echo "❌ Backend health check failed" && exit 1)
-          echo "✅ Backend is healthy"
+          # Retry health check up to 5 times with 5 second intervals
+          max_attempts=5
+          attempt=1
+          while [ $attempt -le $max_attempts ]; do
+            echo "Attempt $attempt/$max_attempts..."
+            if curl -f http://localhost:3000/health 2>/dev/null; then
+              echo "✅ Backend is healthy"
+              exit 0
+            fi
+            if [ $attempt -lt $max_attempts ]; then
+              echo "Backend not ready yet, waiting 5 seconds..."
+              sleep 5
+            fi
+            attempt=$((attempt + 1))
+          done
+          echo "❌ Backend health check failed after $max_attempts attempts"
+          exit 1
 
       - name: Show container status
         run: |
