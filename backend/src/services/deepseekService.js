@@ -250,16 +250,43 @@ QUANDO O USUÁRIO PEDIR PARA CRIAR UM DEVOCIONAL, você DEVE:
 1. Responder de forma amigável
 2. Chamar a função createDevotional com TODOS os campos preenchidos
 
+REGRAS IMPORTANTES DE FORMATAÇÃO:
+- NÃO use emojis em títulos, textos, orações ou perguntas
+- NÃO use formatação HTML especial (apenas <p> para parágrafos no teaching_content)
+- NÃO adicione símbolos decorativos (✨, 💪, 🙏, etc.)
+- Escreva textos limpos e diretos
+- Para opening_inspiration: texto puro, SEM HTML
+- Para action_step: texto puro, SEM HTML
+- Para closing_prayer: texto puro, SEM HTML
+- Para reflection_questions: textos puros no array, SEM HTML
+- Para teaching_content: use APENAS tags <p> para separar parágrafos
+
 IMPORTANTE: Preencha TODOS os campos obrigatórios:
-- title_pt e title_en (títulos inspiradores)
+- title_pt e title_en (títulos inspiradores SEM emojis)
 - quote_author e quote_text_pt/en (citação de autor cristão conhecido)
-- opening_inspiration_pt/en (1-2 frases cativantes)
+- opening_inspiration_pt/en (1-2 frases cativantes em TEXTO PURO)
 - scripture_reference (ex: "João 3:16")
-- teaching_content_pt/en (4-6 parágrafos ricos, mínimo 400 palavras, com história real de uma mulher e conexão bíblica)
-- reflection_questions_pt/en (4-5 perguntas profundas)
-- action_step_pt/en (1 ação concreta)
-- closing_prayer_pt/en (oração completa com 5-6 frases)
+- teaching_content_pt/en (4-6 parágrafos ricos, mínimo 400 palavras, com história real de uma mulher e conexão bíblica, usando APENAS tags <p>)
+- reflection_questions_pt/en (4-5 perguntas profundas em TEXTO PURO)
+- action_step_pt/en (1 ação concreta em TEXTO PURO)
+- closing_prayer_pt/en (oração completa com 5-6 frases em TEXTO PURO)
 - publish_date (formato: YYYY-MM-DD)
+
+EXEMPLO DE FORMATAÇÃO CORRETA:
+- title_pt: "Fé Que Sustenta" (português, SEM emojis)
+- title_en: "Faith That Sustains" (inglês, SEM emojis)
+- opening_inspiration_pt: "Às vezes, ser mulher significa carregar o mundo nos ombros." (PORTUGUÊS, texto puro)
+- opening_inspiration_en: "Sometimes being a woman means carrying the world on your shoulders." (INGLÊS, texto puro)
+- teaching_content_pt: "<p>Ana estava à beira da cama de sua filha...</p><p>Foi naquela noite que ela abriu a Bíblia...</p>" (PORTUGUÊS, apenas <p>)
+- teaching_content_en: "<p>Ana sat at her daughter's bedside...</p><p>It was that night when she opened the Bible...</p>" (INGLÊS, apenas <p>)
+- reflection_questions_pt: ["Como você tem experimentado o amor de Deus?", "Que evidências você vê?"] (PORTUGUÊS, texto puro)
+- reflection_questions_en: ["How have you experienced God's love?", "What evidence do you see?"] (INGLÊS, texto puro)
+- action_step_pt: "Esta semana, crie um diário das evidências do amor." (PORTUGUÊS, texto puro)
+- action_step_en: "This week, create a diary of love evidences." (INGLÊS, texto puro)
+- closing_prayer_pt: "Pai celestial, em meio às minhas dúvidas e perguntas, ajuda-me a encontrar a resposta no Teu amor revelado em Jesus." (PORTUGUÊS, texto puro)
+- closing_prayer_en: "Heavenly Father, amid my doubts and questions, help me find the answer in Your love revealed in Jesus." (INGLÊS, texto puro)
+
+CRÍTICO: Os campos com sufixo _pt DEVEM estar em PORTUGUÊS. Os campos com sufixo _en DEVEM estar em INGLÊS.
 
 Se não souber alguma informação (como data ou tema específico), use valores padrão inteligentes.`;
 
@@ -290,14 +317,14 @@ Se não souber alguma informação (como data ou tema específico), use valores 
                 opening_inspiration_pt: { type: 'string', description: 'Frase de abertura em português' },
                 opening_inspiration_en: { type: 'string', description: 'Frase de abertura em inglês' },
                 scripture_reference: { type: 'string', description: 'Referência bíblica (ex: João 3:16)' },
-                teaching_content_pt: { type: 'string', description: 'Conteúdo principal em HTML com parágrafos <p>' },
-                teaching_content_en: { type: 'string', description: 'Conteúdo principal em inglês com parágrafos <p>' },
-                reflection_questions_pt: { type: 'array', items: { type: 'string' }, description: 'Array de perguntas em português' },
-                reflection_questions_en: { type: 'array', items: { type: 'string' }, description: 'Array de perguntas em inglês' },
-                action_step_pt: { type: 'string', description: 'Passo de ação em português' },
-                action_step_en: { type: 'string', description: 'Passo de ação em inglês' },
-                closing_prayer_pt: { type: 'string', description: 'Oração final em português' },
-                closing_prayer_en: { type: 'string', description: 'Oração final em inglês' },
+                teaching_content_pt: { type: 'string', description: 'Conteúdo principal EM PORTUGUÊS com parágrafos <p>. DEVE estar em português.' },
+                teaching_content_en: { type: 'string', description: 'Conteúdo principal EM INGLÊS com parágrafos <p>. DEVE estar em inglês.' },
+                reflection_questions_pt: { type: 'array', items: { type: 'string' }, description: 'Array de perguntas EM PORTUGUÊS. DEVE estar em português.' },
+                reflection_questions_en: { type: 'array', items: { type: 'string' }, description: 'Array de perguntas EM INGLÊS. DEVE estar em inglês.' },
+                action_step_pt: { type: 'string', description: 'Passo de ação EM PORTUGUÊS. DEVE estar em português.' },
+                action_step_en: { type: 'string', description: 'Passo de ação EM INGLÊS. DEVE estar em inglês.' },
+                closing_prayer_pt: { type: 'string', description: 'Oração final EM PORTUGUÊS. DEVE estar em português.' },
+                closing_prayer_en: { type: 'string', description: 'Oração final EM INGLÊS. DEVE estar em inglês.' },
                 publish_date: { type: 'string', description: 'Data de publicação (YYYY-MM-DD)' },
                 is_published: { type: 'boolean', description: 'Publicar imediatamente (padrão: true)' },
               },
