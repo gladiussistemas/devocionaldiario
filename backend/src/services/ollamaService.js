@@ -438,7 +438,8 @@ Sua resposta${wantsToCreate ? ' (o usuário está pedindo para criar um devocion
         format: 'json',
         options: {
           temperature: 0.8,
-          num_predict: 4000,
+          num_predict: 2000, // Reduzido de 4000 para 2000 para melhorar performance
+          num_ctx: 4096,     // Contexto máximo
         },
       });
       console.log('✅ Resposta recebida do Ollama');
