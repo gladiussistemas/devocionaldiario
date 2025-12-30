@@ -1,4 +1,5 @@
 const Devotional = require('../../models/Devotional');
+const { translateBookName, stripHtml } = require('../../utils/bibleBookTranslations');
 
 /**
  * Get all devotionals with filters
@@ -219,9 +220,13 @@ async function sync(req, res, next) {
 
       // Get first biblical reference if exists
       const firstRef = dev.biblical_references?.[0];
-      const scriptureReference = content?.scripture_reference || (firstRef
-        ? `${firstRef.book} ${firstRef.chapter}:${firstRef.verse_start}${firstRef.verse_end ? `-${firstRef.verse_end}` : ''}`
-        : null);
+      let scriptureReference = content?.scripture_reference;
+
+      // If no scripture_reference in content, build from biblical_references
+      if (!scriptureReference && firstRef) {
+        const translatedBook = translateBookName(firstRef.book, language);
+        scriptureReference = `${translatedBook} ${firstRef.chapter}:${firstRef.verse_start}${firstRef.verse_end ? `-${firstRef.verse_end}` : ''}`;
+      }
 
       return {
         id: dev.id,
@@ -229,11 +234,11 @@ async function sync(req, res, next) {
         day_number: dev.day_number,
         title: content?.title || '',
         scripture_reference: scriptureReference,
-        teaching_content: content?.teaching_content || '',
-        reflection_questions: content?.reflection_questions || [],
-        closing_prayer: content?.closing_prayer || '',
-        opening_inspiration: content?.opening_inspiration || null,
-        action_step: content?.action_step || null,
+        teaching_content: stripHtml(content?.teaching_content || ''),
+        reflection_questions: (content?.reflection_questions || []).map(q => stripHtml(q)),
+        closing_prayer: stripHtml(content?.closing_prayer || ''),
+        opening_inspiration: content?.opening_inspiration ? stripHtml(content.opening_inspiration) : null,
+        action_step: content?.action_step ? stripHtml(content.action_step) : null,
         estimated_duration_minutes: dev.estimated_duration_minutes,
         tags: dev.tags || [],
         publish_date: dev.publish_date,
