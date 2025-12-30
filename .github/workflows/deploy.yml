@@ -15,15 +15,27 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy Backend
+      - name: Stop containers
         run: |
           cd /opt/devocionaldiario
+          echo "🛑 Stopping all containers..."
+          docker-compose down
+          echo "✅ Containers stopped"
+
+      - name: Pull latest code
+        run: |
+          cd /opt/devocionaldiario
+          echo "📥 Pulling latest code from main branch..."
           git fetch origin
           git reset --hard origin/main
-          docker-compose down
+          echo "✅ Code updated"
+
+      - name: Build backend image
+        run: |
+          cd /opt/devocionaldiario
+          echo "🔨 Building backend Docker image..."
           docker-compose build --no-cache backend
-          docker-compose up -d
-          echo "✅ Backend deployed successfully"
+          echo "✅ Backend image built"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -33,19 +45,71 @@ jobs:
       - name: Build Admin Panel
         run: |
           cd admin-panel
+          echo "🔨 Building admin panel..."
           npm install
           npm run build
+          echo "✅ Admin panel built"
         env:
           VITE_API_URL: https://api.gladiussistemas.com.br
 
-      - name: Deploy Admin Panel
+      - name: Copy admin build to production
         run: |
           cd /opt/devocionaldiario
-          docker-compose restart nginx
-          echo "✅ Admin panel deployed successfully"
+          echo "📦 Copying admin panel build files..."
+          rm -rf admin-panel/dist
+          cp -r ${{ github.workspace }}/admin-panel/dist admin-panel/
+          echo "✅ Admin panel files copied"
 
-      - name: Cleanup
+      - name: Start all containers
+        run: |
+          cd /opt/devocionaldiario
+          echo "🚀 Starting all containers..."
+          docker-compose up -d
+          echo "✅ Containers started"
+
+      - name: Wait for services
+        run: |
+          echo "⏳ Waiting for services to be ready..."
+          sleep 10
+
+      - name: Verify backend health
+        run: |
+          echo "🏥 Checking backend health..."
+          curl -f http://localhost:3000/health || (echo "❌ Backend health check failed" && exit 1)
+          echo "✅ Backend is healthy"
+
+      - name: Show container status
+        run: |
+          cd /opt/devocionaldiario
+          echo "📊 Container status:"
+          docker-compose ps
+
+      - name: Show backend logs
+        if: always()
+        run: |
+          cd /opt/devocionaldiario
+          echo "📋 Recent backend logs:"
+          docker-compose logs --tail=50 backend
+
+      - name: Cleanup build artifacts
         run: |
           cd admin-panel
+          echo "🧹 Cleaning up temporary files..."
           rm -rf node_modules
-          echo "✅ Cleanup completed"
+          echo "✅ Build artifacts cleaned"
+
+      - name: Cleanup Docker resources
+        run: |
+          echo "🧹 Removing unused Docker images..."
+          docker image prune -af --filter "until=24h" || true
+          echo "✅ Docker cleanup completed"
+
+      - name: Deploy Summary
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "🎉 DEPLOYMENT COMPLETED SUCCESSFULLY!"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "✅ Backend: https://api.gladiussistemas.com.br"
+          echo "✅ Admin Panel: https://admin.gladiussistemas.com.br"
+          echo "✅ Landing Page: https://page.gladiussistemas.com.br"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
