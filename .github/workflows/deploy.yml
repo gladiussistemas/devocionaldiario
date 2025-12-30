@@ -50,7 +50,7 @@ jobs:
           npm run build
           echo "✅ Admin panel built"
         env:
-          VITE_API_URL: https://api.gladiussistemas.com.br
+          VITE_API_URL: https://api.gladiussistemas.com.br/api
 
       - name: Deploy admin panel files (containers are stopped)
         run: |
