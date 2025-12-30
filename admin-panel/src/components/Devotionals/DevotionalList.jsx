@@ -186,7 +186,9 @@ export default function DevotionalList() {
   };
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('pt-BR');
+    // Parse date as local date to avoid timezone issues
+    const [year, month, day] = dateString.split('-');
+    return new Date(year, month - 1, day).toLocaleDateString('pt-BR');
   };
 
   if (loading && devotionals.length === 0) {
