@@ -7,7 +7,7 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3000
-      - OLLAMA_URL=http://172.17.0.1:11434
+      - AI_PROVIDER=deepseek
       - CORS_ORIGIN=https://admin.gladiussistemas.com.br
     networks:
       - devocional-network

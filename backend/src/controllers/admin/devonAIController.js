@@ -1,9 +1,25 @@
 const geminiService = require('../../services/geminiService');
 const ollamaService = require('../../services/ollamaService');
+const deepseekService = require('../../services/deepseekService');
 const DevonAIConversation = require('../../models/DevonAIConversation');
 
 // Escolher qual serviço usar baseado na variável de ambiente
-const aiService = process.env.USE_OLLAMA === 'true' ? ollamaService : geminiService;
+function getAIService() {
+  const aiProvider = process.env.AI_PROVIDER || 'deepseek';
+
+  switch (aiProvider) {
+    case 'deepseek':
+      return deepseekService;
+    case 'ollama':
+      return ollamaService;
+    case 'gemini':
+      return geminiService;
+    default:
+      return deepseekService;
+  }
+}
+
+const aiService = getAIService();
 
 /**
  * Chat com Devon IA
