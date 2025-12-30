@@ -56,9 +56,9 @@ jobs:
         run: |
           cd /opt/devocionaldiario
           echo "📦 Copying admin panel build files..."
-          rm -rf admin-panel/dist
-          cp -r ${{ github.workspace }}/admin-panel/dist admin-panel/
-          echo "✅ Admin panel files copied"
+          # Use rsync to sync files (safer than rm + cp)
+          rsync -av --delete ${{ github.workspace }}/admin-panel/dist/ admin-panel/dist/
+          echo "✅ Admin panel files synced"
 
       - name: Start all containers
         run: |
