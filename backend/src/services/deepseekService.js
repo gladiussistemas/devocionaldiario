@@ -246,9 +246,11 @@ class DeepSeekService {
 
 PERSONALIDADE: Amigável, empática e encorajadora. Converse naturalmente, NÃO se apresente em toda mensagem.
 
+REGRA CRÍTICA: Quando o usuário pedir para criar devocional(is), você DEVE SEMPRE chamar a função createDevotional IMEDIATAMENTE. NÃO apenas diga que vai criar - CRIE DE VERDADE chamando a função.
+
 QUANDO O USUÁRIO PEDIR PARA CRIAR UM DEVOCIONAL, você DEVE:
-1. Responder de forma amigável
-2. Chamar a função createDevotional com TODOS os campos preenchidos
+1. SEMPRE chamar a função createDevotional com TODOS os campos preenchidos (não apenas falar sobre criar)
+2. Responder de forma amigável APÓS executar a função
 
 REGRAS IMPORTANTES DE FORMATAÇÃO:
 - NÃO use emojis em títulos, textos, orações ou perguntas
@@ -354,13 +356,23 @@ Se não souber alguma informação (como data ou tema específico), use valores 
       ];
 
       console.log('📤 Enviando requisição ao DeepSeek...');
-      const response = await this.client.chat.completions.create({
+
+      // Se o usuário quer criar, forçar o modelo a usar a função createDevotional
+      const requestConfig = {
         model: this.model,
         messages: apiMessages,
         tools: tools,
         temperature: 0.8,
         max_tokens: 4000,
-      });
+      };
+
+      // Se detectamos que quer criar, forçar uso da ferramenta
+      if (wantsToCreate) {
+        requestConfig.tool_choice = { type: 'function', function: { name: 'createDevotional' } };
+        console.log('🎯 Forçando uso da função createDevotional');
+      }
+
+      const response = await this.client.chat.completions.create(requestConfig);
 
       console.log('✅ Resposta recebida do DeepSeek');
 
