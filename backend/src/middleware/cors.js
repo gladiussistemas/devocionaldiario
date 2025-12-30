@@ -14,7 +14,9 @@ const corsOptions = {
       'http://localhost:3000',
       'http://localhost:5173',
       'http://localhost:5174',
-      // Add production origins here
+      'https://admin.gladiussistemas.com.br',
+      'https://api.gladiussistemas.com.br',
+      'https://page.gladiussistemas.com.br',
     ];
 
     if (allowedOrigins.indexOf(origin) !== -1 || config.nodeEnv === 'development') {
