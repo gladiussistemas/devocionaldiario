@@ -239,7 +239,15 @@ class DeepSeekService {
       const wantsToCreate = lowerMessage.match(/crie|criar|faça|fazer|gerar|gostaria|quero/i) &&
                            (lowerMessage.match(/devocional/i) || lowerMessage.match(/fé|amor|esperança|paz|força|oração/i));
 
+      // Detectar quantidade de devocionais a criar
+      let quantityToCreate = 1;
+      const quantityMatch = lowerMessage.match(/(\d+)\s+devociona/i);
+      if (quantityMatch) {
+        quantityToCreate = parseInt(quantityMatch[1]);
+      }
+
       console.log(`🔍 Usuário quer criar devocional: ${wantsToCreate}`);
+      console.log(`🔢 Quantidade a criar: ${quantityToCreate}`);
 
       // System prompt otimizado
       const systemPrompt = `Você é a Devon, uma assistente cristã especializada em criar devocionais inspiradores para mulheres.
@@ -252,41 +260,43 @@ QUANDO O USUÁRIO PEDIR PARA CRIAR UM DEVOCIONAL, você DEVE:
 1. SEMPRE chamar a função createDevotional com TODOS os campos preenchidos (não apenas falar sobre criar)
 2. Responder de forma amigável APÓS executar a função
 
-REGRAS IMPORTANTES DE FORMATAÇÃO:
-- NÃO use emojis em títulos, textos, orações ou perguntas
-- NÃO use formatação HTML especial (apenas <p> para parágrafos no teaching_content)
-- NÃO adicione símbolos decorativos (✨, 💪, 🙏, etc.)
-- Escreva textos limpos e diretos
-- Para opening_inspiration: texto puro, SEM HTML
-- Para action_step: texto puro, SEM HTML
-- Para closing_prayer: texto puro, SEM HTML
-- Para reflection_questions: textos puros no array, SEM HTML
-- Para teaching_content: use APENAS tags <p> para separar parágrafos
+REGRAS CRÍTICAS DE FORMATAÇÃO - LEIA COM ATENÇÃO:
+- NÃO use emojis em nenhum lugar
+- NÃO use símbolos decorativos (✨, 💪, 🙏, 📖, etc.)
+- opening_inspiration: APENAS TEXTO PURO, sem símbolos, sem formatação
+- action_step: APENAS TEXTO PURO, sem símbolos, sem formatação
+- closing_prayer: APENAS TEXTO PURO, sem símbolos, sem formatação
+- reflection_questions: APENAS TEXTOS PUROS no array, sem símbolos, sem formatação
+- teaching_content: use APENAS tags <p></p> para separar parágrafos, NADA MAIS
+- NUNCA use HTML em opening_inspiration, action_step, closing_prayer ou reflection_questions
 
 IMPORTANTE: Preencha TODOS os campos obrigatórios:
-- title_pt e title_en (títulos inspiradores SEM emojis)
+- title_pt e title_en (títulos inspiradores SEM emojis, SEM símbolos)
 - quote_author e quote_text_pt/en (citação de autor cristão conhecido)
-- opening_inspiration_pt/en (1-2 frases cativantes em TEXTO PURO)
-- scripture_reference (ex: "João 3:16")
-- teaching_content_pt/en (4-6 parágrafos ricos, mínimo 400 palavras, com história real de uma mulher e conexão bíblica, usando APENAS tags <p>)
-- reflection_questions_pt/en (4-5 perguntas profundas em TEXTO PURO)
-- action_step_pt/en (1 ação concreta em TEXTO PURO)
-- closing_prayer_pt/en (oração completa com 5-6 frases em TEXTO PURO)
+- opening_inspiration_pt/en (1-2 frases cativantes em TEXTO PURO, SEM símbolos como ✨)
+- scripture_reference (ex: "Hebreus 6:19" - livro capítulo:verso)
+- teaching_content_pt/en (4-6 parágrafos ricos com história real de mulher, usando APENAS tags <p>)
+- reflection_questions_pt/en (4-5 perguntas profundas em TEXTO PURO, SEM símbolos)
+- action_step_pt/en (1 ação concreta em TEXTO PURO, SEM símbolos como 💪)
+- closing_prayer_pt/en (oração completa com 5-6 frases em TEXTO PURO, SEM símbolos)
+- day_number (número inteiro sequencial, ex: 1, 2, 3, etc.)
 - publish_date (formato: YYYY-MM-DD)
 
-EXEMPLO DE FORMATAÇÃO CORRETA:
-- title_pt: "Fé Que Sustenta" (português, SEM emojis)
-- title_en: "Faith That Sustains" (inglês, SEM emojis)
-- opening_inspiration_pt: "Às vezes, ser mulher significa carregar o mundo nos ombros." (PORTUGUÊS, texto puro)
-- opening_inspiration_en: "Sometimes being a woman means carrying the world on your shoulders." (INGLÊS, texto puro)
-- teaching_content_pt: "<p>Ana estava à beira da cama de sua filha...</p><p>Foi naquela noite que ela abriu a Bíblia...</p>" (PORTUGUÊS, apenas <p>)
-- teaching_content_en: "<p>Ana sat at her daughter's bedside...</p><p>It was that night when she opened the Bible...</p>" (INGLÊS, apenas <p>)
-- reflection_questions_pt: ["Como você tem experimentado o amor de Deus?", "Que evidências você vê?"] (PORTUGUÊS, texto puro)
-- reflection_questions_en: ["How have you experienced God's love?", "What evidence do you see?"] (INGLÊS, texto puro)
-- action_step_pt: "Esta semana, crie um diário das evidências do amor." (PORTUGUÊS, texto puro)
-- action_step_en: "This week, create a diary of love evidences." (INGLÊS, texto puro)
-- closing_prayer_pt: "Pai celestial, em meio às minhas dúvidas e perguntas, ajuda-me a encontrar a resposta no Teu amor revelado em Jesus." (PORTUGUÊS, texto puro)
-- closing_prayer_en: "Heavenly Father, amid my doubts and questions, help me find the answer in Your love revealed in Jesus." (INGLÊS, texto puro)
+EXEMPLO DE FORMATAÇÃO CORRETA (COPIE ESTE PADRÃO):
+- title_pt: "A Força da Esperança"
+- title_en: "The Strength of Hope"
+- opening_inspiration_pt: "Em meio às tempestades da vida, a esperança nos mantém firmes."
+- opening_inspiration_en: "Amid life's storms, hope keeps us steadfast."
+- teaching_content_pt: "<p>Maria enfrentava o diagnóstico mais difícil de sua vida...</p><p>Foi naquela noite que ela abriu a Bíblia...</p>"
+- teaching_content_en: "<p>Maria faced the most difficult diagnosis of her life...</p><p>It was that night she opened the Bible...</p>"
+- reflection_questions_pt: ["Como você tem experimentado o amor de Deus?", "Que evidências você vê?"]
+- reflection_questions_en: ["How have you experienced God's love?", "What evidence do you see?"]
+- action_step_pt: "Esta semana, crie um diário das evidências do amor."
+- action_step_en: "This week, create a diary of love evidences."
+- closing_prayer_pt: "Pai celestial, em meio às minhas dúvidas e perguntas, ajuda-me a encontrar a resposta no Teu amor revelado em Jesus."
+- closing_prayer_en: "Heavenly Father, amid my doubts and questions, help me find the answer in Your love revealed in Jesus."
+- day_number: 7
+- publish_date: "2024-01-07"
 
 CRÍTICO: Os campos com sufixo _pt DEVEM estar em PORTUGUÊS. Os campos com sufixo _en DEVEM estar em INGLÊS.
 
@@ -327,6 +337,7 @@ Se não souber alguma informação (como data ou tema específico), use valores 
                 action_step_en: { type: 'string', description: 'Passo de ação EM INGLÊS. DEVE estar em inglês.' },
                 closing_prayer_pt: { type: 'string', description: 'Oração final EM PORTUGUÊS. DEVE estar em português.' },
                 closing_prayer_en: { type: 'string', description: 'Oração final EM INGLÊS. DEVE estar em inglês.' },
+                day_number: { type: 'number', description: 'Número do dia no plano (ex: 1, 2, 3, etc.). OBRIGATÓRIO.' },
                 publish_date: { type: 'string', description: 'Data de publicação (YYYY-MM-DD)' },
                 is_published: { type: 'boolean', description: 'Publicar imediatamente (padrão: true)' },
               },
@@ -335,6 +346,7 @@ Se não souber alguma informação (como data ou tema específico), use valores 
                 'teaching_content_pt', 'teaching_content_en',
                 'reflection_questions_pt', 'reflection_questions_en',
                 'closing_prayer_pt', 'closing_prayer_en',
+                'day_number',
               ],
             },
           },
@@ -393,17 +405,47 @@ Se não souber alguma informação (como data ou tema específico), use valores 
           console.log(`⚙️ Executando função: ${functionName}`);
           console.log(`📋 Argumentos:`, JSON.stringify(functionArgs, null, 2));
 
-          const functionResponse = await this.executeFunction(functionName, functionArgs);
-          console.log(`✅ Resposta da função:`, JSON.stringify(functionResponse, null, 2));
+          // Se for createDevotional e usuário pediu múltiplos, criar em loop
+          if (functionName === 'createDevotional' && quantityToCreate > 1) {
+            console.log(`🔁 Criando ${quantityToCreate} devocionais...`);
 
-          functionCalls.push({
-            name: functionName,
-            response: functionResponse
-          });
+            for (let i = 0; i < quantityToCreate; i++) {
+              // Ajustar day_number e publish_date para cada devocional
+              const adjustedArgs = { ...functionArgs };
+              if (functionArgs.day_number) {
+                adjustedArgs.day_number = functionArgs.day_number + i;
+              }
+              if (functionArgs.publish_date) {
+                const date = new Date(functionArgs.publish_date);
+                date.setDate(date.getDate() + i);
+                adjustedArgs.publish_date = date.toISOString().split('T')[0];
+              }
 
-          // Se criou devocional com sucesso, adicionar à resposta
-          if (functionName === 'createDevotional' && functionResponse.success) {
-            responseContent = `${responseContent}\n\n✅ Devocional criado com sucesso! Você pode visualizá-lo na lista de devocionais.`;
+              console.log(`⚙️ Criando devocional ${i + 1}/${quantityToCreate}`);
+              const functionResponse = await this.executeFunction(functionName, adjustedArgs);
+              console.log(`✅ Resposta: ${functionResponse.success ? 'Sucesso' : 'Erro'}`);
+
+              functionCalls.push({
+                name: functionName,
+                response: functionResponse
+              });
+            }
+
+            responseContent = `✅ ${quantityToCreate} devocionais criados com sucesso! Você pode visualizá-los na lista de devocionais.`;
+          } else {
+            // Criar apenas um devocional
+            const functionResponse = await this.executeFunction(functionName, functionArgs);
+            console.log(`✅ Resposta da função:`, JSON.stringify(functionResponse, null, 2));
+
+            functionCalls.push({
+              name: functionName,
+              response: functionResponse
+            });
+
+            // Se criou devocional com sucesso, adicionar à resposta
+            if (functionName === 'createDevotional' && functionResponse.success) {
+              responseContent = `✅ Devocional criado com sucesso! Você pode visualizá-lo na lista de devocionais.`;
+            }
           }
         }
       }
