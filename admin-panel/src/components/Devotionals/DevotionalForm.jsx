@@ -58,12 +58,29 @@ export default function DevotionalForm({ readOnly = false }) {
   const [isTranslating, setIsTranslating] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [suggestedDayNumber, setSuggestedDayNumber] = useState(null);
 
   useEffect(() => {
     if (isEditing) {
       fetchDevotional();
+    } else {
+      fetchNextDayNumber();
     }
   }, [id]);
+
+  const fetchNextDayNumber = async () => {
+    try {
+      const data = await devotionalService.getAll({ limit: 1, page: 1 });
+      if (data.devotionals && data.devotionals.length > 0) {
+        const maxDay = Math.max(...data.devotionals.map(d => d.day_number || 0).filter(Boolean));
+        setSuggestedDayNumber(maxDay + 1);
+      } else {
+        setSuggestedDayNumber(1);
+      }
+    } catch (err) {
+      setSuggestedDayNumber(1);
+    }
+  };
 
   const fetchDevotional = async () => {
     try {
@@ -344,7 +361,8 @@ export default function DevotionalForm({ readOnly = false }) {
             value={formData.day_number}
             onChange={(e) => handleChange('day_number', e.target.value)}
             disabled={readOnly}
-            helperText="Número do dia no plano/tema (ex: Dia 1 de 30)"
+            helperText={suggestedDayNumber ? `Próximo disponível: ${suggestedDayNumber}` : "Número do dia no plano"}
+            sx={{ flex: 1 }}
           />
           <TextField
             label="Duração (minutos)"
@@ -352,13 +370,7 @@ export default function DevotionalForm({ readOnly = false }) {
             value={formData.estimated_duration_minutes}
             onChange={(e) => handleChange('estimated_duration_minutes', e.target.value)}
             helperText="Tempo estimado de leitura"
-          />
-          <TextField
-            label="Tags"
-            value={formData.tags.join(', ')}
-            onChange={(e) => handleChange('tags', e.target.value.split(',').map(t => t.trim()).filter(Boolean))}
-            fullWidth
-            helperText="Palavras-chave separadas por vírgula"
+            sx={{ flex: 1 }}
           />
         </Box>
 
@@ -372,32 +384,20 @@ export default function DevotionalForm({ readOnly = false }) {
               '& .MuiTab-root': {
                 fontWeight: 600,
                 fontSize: '1rem',
+                backgroundColor: '#fff',
+                color: '#000',
+                border: '1px solid #ddd',
+                borderRadius: 1,
+                minHeight: 48,
+                '&.Mui-selected': {
+                  backgroundColor: '#000',
+                  color: '#fff',
+                },
               },
-              '& .Mui-selected': {
-                backgroundColor: currentTab === 0 ? 'success.light' : 'info.light',
-                color: currentTab === 0 ? 'success.dark' : 'info.dark',
-              }
             }}
           >
-            <Tab
-              label="🇧🇷 Português (Conteúdo Original)"
-              sx={{
-                minWidth: 240,
-                border: '2px solid',
-                borderColor: currentTab === 0 ? 'success.main' : 'grey.300',
-                borderRadius: 1,
-                mr: 1
-              }}
-            />
-            <Tab
-              label="🇺🇸 English (Tradução)"
-              sx={{
-                minWidth: 240,
-                border: '2px solid',
-                borderColor: currentTab === 1 ? 'info.main' : 'grey.300',
-                borderRadius: 1
-              }}
-            />
+            <Tab label="Português" sx={{ mr: 1, minWidth: 120 }} />
+            <Tab label="English" sx={{ minWidth: 120 }} />
           </Tabs>
           <Button
             variant="outlined"
@@ -409,30 +409,6 @@ export default function DevotionalForm({ readOnly = false }) {
             {isTranslating ? 'Traduzindo...' : 'Traduzir PT → EN'}
           </Button>
         </Box>
-
-        {/* Language indicator banner */}
-        <Paper
-          sx={{
-            p: 2,
-            mb: 3,
-            bgcolor: currentTab === 0 ? 'success.light' : 'info.light',
-            borderLeft: '4px solid',
-            borderColor: currentTab === 0 ? 'success.main' : 'info.main',
-          }}
-        >
-          <Typography variant="body1" sx={{ fontWeight: 600 }}>
-            {currentTab === 0 ? (
-              <>🇧🇷 Editando conteúdo em <strong>PORTUGUÊS</strong> (idioma original)</>
-            ) : (
-              <>🇺🇸 Editando conteúdo em <strong>INGLÊS</strong> (tradução)</>
-            )}
-          </Typography>
-          {currentTab === 1 && (
-            <Typography variant="body2" sx={{ mt: 0.5 }}>
-              Use o botão "Traduzir PT → EN" acima para traduzir automaticamente do português.
-            </Typography>
-          )}
-        </Paper>
 
         <Box>
           <TextField
