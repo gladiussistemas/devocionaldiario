@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 import { ArrowBack as BackIcon, Edit as EditIcon } from '@mui/icons-material';
 import devotionalService from '../../services/devotionalService';
+import { formatBiblicalReference } from '../../utils/bibleTranslations';
 
 export default function DevotionalView() {
   const navigate = useNavigate();
@@ -73,6 +74,7 @@ export default function DevotionalView() {
   const contentPt = devotional.devotional_contents?.find(c => c.language === 'pt') || {};
   const contentEn = devotional.devotional_contents?.find(c => c.language === 'en') || {};
   const currentContent = currentTab === 0 ? contentPt : contentEn;
+  const currentLanguage = currentTab === 0 ? 'pt' : 'en';
 
   return (
     <Box>
@@ -246,9 +248,7 @@ export default function DevotionalView() {
                   .map((ref) => (
                     <Chip
                       key={ref.id}
-                      label={`${ref.book} ${ref.chapter}:${ref.verse_start}${
-                        ref.verse_end ? `-${ref.verse_end}` : ''
-                      }`}
+                      label={formatBiblicalReference(ref, currentLanguage)}
                       variant="outlined"
                       color="secondary"
                     />
