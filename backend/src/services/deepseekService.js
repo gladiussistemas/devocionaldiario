@@ -252,18 +252,34 @@ class DeepSeekService {
       const lastUserMessage = messages[messages.length - 1].content;
       const lowerMessage = lastUserMessage.toLowerCase();
 
-      // Detectar se usuário quer criar um devocional
-      const wantsToCreate = lowerMessage.match(/crie|criar|faça|fazer|gerar|gostaria|quero/i) &&
-                           (lowerMessage.match(/devocional/i) || lowerMessage.match(/fé|amor|esperança|paz|força|oração/i));
+      // Detectar se usuário quer criar um devocional - regex mais abrangente
+      const creationVerbs = /cri[ea]r?|fa[çz][ao]?|fazer|ger[ae]r?|gostaria|quero|preciso|pode|poderia|elabor[ae]|produz|escreva?|desenvolv|mont[ae]/i;
+      const devotionalTerms = /devocional|devociona[il]s|medita[çc][ãa]o|reflexão|reflexao|conte[úu]do/i;
+      const themeTerms = /fé|fe|amor|esperança|esperanca|paz|força|forca|oração|oracao|gratidão|gratidao|perservança|perseverança|humildade|sabedoria|confiança|confianca|alegria|perdão|perdao|graça|graca/i;
+
+      const hasCreationVerb = creationVerbs.test(lowerMessage);
+      const hasDevotionalTerm = devotionalTerms.test(lowerMessage);
+      const hasThemeTerm = themeTerms.test(lowerMessage);
+
+      // Quer criar se: (verbo de criação + termo devocional) OU (verbo de criação + tema + contexto de devocional implícito)
+      const wantsToCreate = hasCreationVerb && (hasDevotionalTerm || hasThemeTerm);
 
       // Detectar quantidade de devocionais a criar
       let quantityToCreate = 1;
-      const quantityMatch = lowerMessage.match(/(\d+)\s+devociona/i);
+      const quantityMatch = lowerMessage.match(/(\d+)\s*(?:devociona|medita|reflex)/i);
       if (quantityMatch) {
         quantityToCreate = parseInt(quantityMatch[1]);
       }
+      // Também detectar por extenso
+      const quantityWords = { 'um': 1, 'uma': 1, 'dois': 2, 'duas': 2, 'três': 3, 'tres': 3, 'quatro': 4, 'cinco': 5, 'seis': 6, 'sete': 7, 'oito': 8, 'nove': 9, 'dez': 10 };
+      for (const [word, num] of Object.entries(quantityWords)) {
+        if (lowerMessage.includes(`${word} devociona`) || lowerMessage.includes(`${word} medita`)) {
+          quantityToCreate = num;
+          break;
+        }
+      }
 
-      console.log(`🔍 Usuário quer criar devocional: ${wantsToCreate}`);
+      console.log(`🔍 Usuário quer criar devocional: ${wantsToCreate} (verbo: ${hasCreationVerb}, devocional: ${hasDevotionalTerm}, tema: ${hasThemeTerm})`);
       console.log(`🔢 Quantidade a criar: ${quantityToCreate}`);
 
       // ANTES de criar, buscar último devocional para saber o próximo day_number
@@ -424,7 +440,106 @@ CRÍTICO: Os campos _pt DEVEM estar em PORTUGUÊS. Os campos _en DEVEM estar em 
 
       console.log('📤 Enviando requisição ao DeepSeek...');
 
-      // Se o usuário quer criar, forçar o modelo a usar a função createDevotional
+      // Se o usuário quer criar múltiplos devocionais, fazer múltiplas chamadas à API
+      if (wantsToCreate && quantityToCreate > 1) {
+        console.log(`🔁 Criando ${quantityToCreate} devocionais únicos...`);
+        const functionCalls = [];
+        const createdDevotionals = [];
+
+        for (let i = 0; i < quantityToCreate; i++) {
+          const currentDayNumber = nextDayNumber + i;
+          const currentDate = new Date(nextPublishDate);
+          currentDate.setDate(currentDate.getDate() + i);
+          const currentPublishDate = currentDate.toISOString().split('T')[0];
+
+          // Atualizar o system prompt para cada devocional com dia/data corretos
+          const iterationSystemPrompt = systemPrompt
+            .replace(new RegExp(`day_number: ${nextDayNumber}`, 'g'), `day_number: ${currentDayNumber}`)
+            .replace(new RegExp(`"day_number": ${nextDayNumber}`, 'g'), `"day_number": ${currentDayNumber}`)
+            .replace(new RegExp(nextPublishDate, 'g'), currentPublishDate);
+
+          const iterationMessages = [
+            { role: 'system', content: iterationSystemPrompt },
+            { role: 'user', content: `Crie o devocional número ${i + 1} de ${quantityToCreate}. Use day_number ${currentDayNumber} e publish_date ${currentPublishDate}. ${lastUserMessage}` }
+          ];
+
+          console.log(`⚙️ Gerando devocional ${i + 1}/${quantityToCreate} (Dia ${currentDayNumber}, Data ${currentPublishDate})`);
+
+          try {
+            const iterationResponse = await this.client.chat.completions.create({
+              model: this.model,
+              messages: iterationMessages,
+              tools: tools,
+              tool_choice: { type: 'function', function: { name: 'createDevotional' } },
+              temperature: 0.9, // Mais variação para conteúdos únicos
+              max_tokens: 4000,
+            });
+
+            const iterationAssistantMessage = iterationResponse.choices[0].message;
+            const iterationToolCalls = iterationAssistantMessage.tool_calls;
+
+            if (iterationToolCalls && iterationToolCalls.length > 0) {
+              const toolCall = iterationToolCalls[0];
+              const functionArgs = JSON.parse(toolCall.function.arguments);
+
+              // Garantir que day_number e publish_date estão corretos
+              functionArgs.day_number = currentDayNumber;
+              functionArgs.publish_date = currentPublishDate;
+
+              console.log(`📋 Devocional ${i + 1}: "${functionArgs.title_pt}"`);
+
+              const functionResponse = await this.executeFunction('createDevotional', functionArgs);
+
+              if (functionResponse.success) {
+                createdDevotionals.push({
+                  title: functionArgs.title_pt,
+                  day_number: currentDayNumber,
+                  id: functionResponse.devotional_id
+                });
+              }
+
+              functionCalls.push({
+                name: 'createDevotional',
+                response: functionResponse
+              });
+            }
+          } catch (iterError) {
+            console.error(`❌ Erro ao criar devocional ${i + 1}:`, iterError.message);
+          }
+
+          // Pequeno delay para evitar rate limiting
+          if (i < quantityToCreate - 1) {
+            await new Promise(resolve => setTimeout(resolve, 500));
+          }
+        }
+
+        const successCount = createdDevotionals.length;
+        let responseContent = '';
+
+        if (successCount === quantityToCreate) {
+          responseContent = `Pronto! Criei ${successCount} devocionais com sucesso:\n\n`;
+          createdDevotionals.forEach((d, idx) => {
+            responseContent += `${idx + 1}. "${d.title}" (Dia ${d.day_number})\n`;
+          });
+          responseContent += `\nVocê pode visualizá-los na lista de devocionais.`;
+        } else if (successCount > 0) {
+          responseContent = `Criei ${successCount} de ${quantityToCreate} devocionais:\n\n`;
+          createdDevotionals.forEach((d, idx) => {
+            responseContent += `${idx + 1}. "${d.title}" (Dia ${d.day_number})\n`;
+          });
+          responseContent += `\nAlguns devocionais não puderam ser criados. Tente novamente para os restantes.`;
+        } else {
+          responseContent = `Não consegui criar os devocionais. Por favor, tente novamente.`;
+        }
+
+        return {
+          role: 'assistant',
+          content: responseContent,
+          functionCalls: functionCalls.length > 0 ? functionCalls : undefined,
+        };
+      }
+
+      // Caso normal: criar apenas 1 devocional ou outra ação
       const requestConfig = {
         model: this.model,
         messages: apiMessages,
@@ -455,58 +570,48 @@ CRÍTICO: Os campos _pt DEVEM estar em PORTUGUÊS. Os campos _en DEVEM estar em 
 
         for (const toolCall of toolCalls) {
           const functionName = toolCall.function.name;
-          const functionArgs = JSON.parse(toolCall.function.arguments);
+          let functionArgs;
+
+          try {
+            functionArgs = JSON.parse(toolCall.function.arguments);
+          } catch (parseError) {
+            console.error('❌ Erro ao parsear argumentos da função:', parseError);
+            continue;
+          }
 
           console.log(`⚙️ Executando função: ${functionName}`);
           console.log(`📋 Argumentos:`, JSON.stringify(functionArgs, null, 2));
 
-          // Se for createDevotional e usuário pediu múltiplos, criar em loop
-          if (functionName === 'createDevotional' && quantityToCreate > 1) {
-            console.log(`🔁 Criando ${quantityToCreate} devocionais...`);
+          const functionResponse = await this.executeFunction(functionName, functionArgs);
+          console.log(`✅ Resposta da função:`, JSON.stringify(functionResponse, null, 2));
 
-            for (let i = 0; i < quantityToCreate; i++) {
-              // Ajustar day_number e publish_date para cada devocional
-              const adjustedArgs = { ...functionArgs };
-              if (functionArgs.day_number) {
-                adjustedArgs.day_number = functionArgs.day_number + i;
-              }
-              if (functionArgs.publish_date) {
-                const date = new Date(functionArgs.publish_date);
-                date.setDate(date.getDate() + i);
-                adjustedArgs.publish_date = date.toISOString().split('T')[0];
-              }
+          functionCalls.push({
+            name: functionName,
+            response: functionResponse
+          });
 
-              console.log(`⚙️ Criando devocional ${i + 1}/${quantityToCreate}`);
-              const functionResponse = await this.executeFunction(functionName, adjustedArgs);
-              console.log(`✅ Resposta: ${functionResponse.success ? 'Sucesso' : 'Erro'}`);
-
-              functionCalls.push({
-                name: functionName,
-                response: functionResponse
-              });
+          // Se criou devocional com sucesso, adicionar à resposta
+          if (functionName === 'createDevotional') {
+            if (functionResponse.success) {
+              responseContent = `Pronto! Criei o devocional "${functionArgs.title_pt}" com sucesso!\n\nO devocional foi agendado para o Dia ${functionArgs.day_number}.\n\nVocê pode visualizá-lo na lista de devocionais.`;
+            } else {
+              responseContent = `Houve um erro ao criar o devocional: ${functionResponse.error || 'Erro desconhecido'}. Por favor, tente novamente.`;
             }
-
-            responseContent = `✅ ${quantityToCreate} devocionais criados com sucesso! Você pode visualizá-los na lista de devocionais.`;
-          } else {
-            // Criar apenas um devocional
-            const functionResponse = await this.executeFunction(functionName, functionArgs);
-            console.log(`✅ Resposta da função:`, JSON.stringify(functionResponse, null, 2));
-
-            functionCalls.push({
-              name: functionName,
-              response: functionResponse
-            });
-
-            // Se criou devocional com sucesso, adicionar à resposta
-            if (functionName === 'createDevotional' && functionResponse.success) {
-              responseContent = `✅ Devocional criado com sucesso! Você pode visualizá-lo na lista de devocionais.`;
+          } else if (functionName === 'listDevotionals') {
+            if (functionResponse.success && functionResponse.devotionals) {
+              responseContent = `Encontrei ${functionResponse.count} devocional(is):\n\n`;
+              functionResponse.devotionals.forEach((d, idx) => {
+                responseContent += `${idx + 1}. "${d.title_pt || 'Sem título'}" - Dia ${d.day_number || 'N/A'} (${d.publish_date})\n`;
+              });
             }
           }
         }
       }
 
-      // Se não tem resposta de texto, gerar uma padrão
-      if (!responseContent && functionCalls.length > 0) {
+      // Se não tem resposta de texto e nem função foi chamada, algo deu errado
+      if (!responseContent && functionCalls.length === 0) {
+        responseContent = 'Desculpe, não consegui processar sua solicitação. Pode reformular o pedido?';
+      } else if (!responseContent && functionCalls.length > 0) {
         responseContent = 'Pronto! Executei as ações solicitadas.';
       }
 
